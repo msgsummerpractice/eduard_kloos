@@ -1,20 +1,20 @@
 package com.example;
-
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
-/**
- * Hello world!
- *
- */
+
+@Configuration
+@ComponentScan(basePackages = "com.example")
 public class App 
 {
     public static void main(String[] args) {
+       AnnotationConfigApplicationContext context =
+                new AnnotationConfigApplicationContext(App.class);
 
-        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+        AnimalService service = context.getBean(AnimalService.class);
+        service.makeAnimalSpeak();
 
-        HelloService service = context.getBean(HelloService.class);
-        System.out.println(service.getMessage());
-        ((AnnotationConfigApplicationContext) context).close();
+        context.close();
     }
 }
