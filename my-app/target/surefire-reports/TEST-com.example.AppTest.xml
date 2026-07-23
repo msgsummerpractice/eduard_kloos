@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Eclipse Adoptium\jdk-25.0.3.9-hotspot\bin"/>
-    <property name="sun.java.command" value="C:\Users\kloose\AppData\Local\Temp\surefire4900889566841167381\surefirebooter-20260723090655870_3.jar C:\Users\kloose\AppData\Local\Temp\surefire4900889566841167381 2026-07-23T09-06-55_794-jvmRun1 surefire-20260723090655870_1tmp surefire_0-20260723090655870_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\kloose\AppData\Local\Temp\surefire14263703929477740978\surefirebooter-20260723092200693_3.jar C:\Users\kloose\AppData\Local\Temp\surefire14263703929477740978 2026-07-23T09-22-00_612-jvmRun1 surefire-20260723092200693_1tmp surefire_0-20260723092200693_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="C:\Training\eduard_kloos\my-app\target\test-classes;C:\Training\eduard_kloos\my-app\target\classes;C:\Users\kloose\.m2\repository\junit\junit\3.8.1\junit-3.8.1.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\kloose\AppData\Local\Temp\surefire4900889566841167381\surefirebooter-20260723090655870_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\kloose\AppData\Local\Temp\surefire14263703929477740978\surefirebooter-20260723092200693_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="25.0.3+9-LTS"/>
