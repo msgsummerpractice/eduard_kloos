@@ -3,12 +3,12 @@ import com.example.demo.service.UserService;
 
 import jakarta.validation.constraints.Min;
 
+import com.example.demo.config.AppProperties;
 import com.example.demo.model.User;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 
@@ -21,17 +21,17 @@ public class UserController {
     
     private final UserService userService;
 
-    @Value("${app.message:Default message}")
-    private String appMessage;
+    private final AppProperties appProperties;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AppProperties appProperties) {
         logger.info("UserController initialized with UserService");
         this.userService = userService;
+        this.appProperties = appProperties;
     }
 
     @GetMapping("/message")
     public String getMessage() {
-        return appMessage;
+        return appProperties.getMessage();
     }
 
     @RequestMapping
