@@ -13,6 +13,7 @@ import com.example.demo.model.User;
 public class UserServiceImpl implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    
     private UserRepository userRepository;
 
     public UserServiceImpl(UserRepository userRepository) {
