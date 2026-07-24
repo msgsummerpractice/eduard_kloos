@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class InMemoryUserRepository implements UserRepository {
 
     private final Map<Long, User> store;
-    private final AtomicLong idGenerator = new AtomicLong(0);
+    private final AtomicLong idGenerator = new AtomicLong();
 
     public InMemoryUserRepository() {
         store = new ConcurrentHashMap<>();
@@ -18,11 +18,16 @@ public class InMemoryUserRepository implements UserRepository {
         store.put(2L, new User(2L, "John Doe2", "john.doe2@email.com", "password123"));
         store.put(3L, new User(3L, "John Doe3", "john.doe3@email.com", "password123"));
         store.put(4L, new User(4L, "John Doe4", "john.doe4@email.com", "password123"));
+
+        idGenerator.set(4);
     }
 
     @Override
-    public List<User> findAll() {
-        return new ArrayList<>(store.values());
+    public List<User> findAll(int limit) {
+        return new ArrayList<>(store.values())
+            .stream()
+            .limit(limit)
+            .toList();
     }
 
     @Override
