@@ -23,8 +23,11 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public List<User> findAll() {
-        return new ArrayList<>(store.values());
+    public List<User> findAll(int limit) {
+        return new ArrayList<>(store.values())
+            .stream()
+            .limit(limit)
+            .toList();
     }
 
     @Override

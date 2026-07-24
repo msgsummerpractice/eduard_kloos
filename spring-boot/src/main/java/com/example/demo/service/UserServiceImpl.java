@@ -22,9 +22,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers() {
-        logger.info("Fetching all users from the repository");
-        return userRepository.findAll();
+    public List<User> getAllUsers(int limit) {
+        logger.info("Fetching first {} users from the repository", limit);
+        return userRepository
+            .findAll(limit)
+            .stream()
+            .limit(limit)
+            .toList();
     }
 
     @Override

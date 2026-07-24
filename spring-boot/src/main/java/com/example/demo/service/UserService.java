@@ -4,7 +4,7 @@ import com.example.demo.model.User;
 import java.util.List;
 
 public interface UserService {
-    List<User> getAllUsers();
+    List<User> getAllUsers(int limit);
     User getUserById(Long id);
     User createUser(User user);
     User updateUser(Long id, User user);

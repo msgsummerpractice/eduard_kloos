@@ -5,7 +5,7 @@ import java.util.Optional;
 
 
 public interface UserRepository {
-    List<User> findAll();
+    List<User> findAll(int limit);
     Optional<User> findById(Long id);
     User save(User user);
     boolean deleteById(Long id);

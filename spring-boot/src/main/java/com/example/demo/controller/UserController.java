@@ -1,14 +1,19 @@
 package com.example.demo.controller;
 import com.example.demo.service.UserService;
+
+import jakarta.validation.constraints.Min;
+
 import com.example.demo.model.User;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 
 @RestController
 @RequestMapping("/api/users")
+@Validated
 public class UserController {
 
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -21,9 +26,9 @@ public class UserController {
     }
 
     @RequestMapping
-    public List<User> getAll() {
-        logger.info("Fetching all users");
-        return userService.getAllUsers();
+    public List<User> getAll(@RequestParam(defaultValue = "10") @Min(value = 1, message = "Limit must be at least 1") int limit) {
+        logger.info("Fetching first {} users", limit);
+        return userService.getAllUsers(limit);
     }
 
     @GetMapping("/{id}")

@@ -33,13 +33,13 @@ public class UsersServiceTest {
             new User(4L, "John Doe4", "john.doe4@email.com", "password123")
         );
 
-        when(userRepository.findAll()).thenReturn(users);
+        when(userRepository.findAll(10)).thenReturn(users);
 
-        List<User> result = usersService.getAllUsers();
+        List<User> result = usersService.getAllUsers(10);
 
         assertEquals(4, result.size());
 
-        verify(userRepository).findAll();
+        verify(userRepository).findAll(10);
     }
 
 

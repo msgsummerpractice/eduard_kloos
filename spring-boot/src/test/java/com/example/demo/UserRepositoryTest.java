@@ -25,7 +25,7 @@ public class UserRepositoryTest {
         User user = new User(null, "Jane Doe", "jane.doe@email.com", "password123");
         userRepository.save(user);
 
-        List<User> users = userRepository.findAll();
+        List<User> users = userRepository.findAll(10);
         assertEquals(5, users.size());
          assertTrue(users.stream()
                         .anyMatch(u -> u.getName().equals("Jane Doe"))

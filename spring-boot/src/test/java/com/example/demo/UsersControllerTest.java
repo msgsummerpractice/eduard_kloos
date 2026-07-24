@@ -18,7 +18,8 @@ public class UsersControllerTest {
 
     @Test
     public void testGetUsersEndpoint() throws Exception {
-        mockMvc.perform(get("/api/users"))
+        mockMvc.perform(get("/api/users")
+                .param("limit", "10"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[{\"id\":1,\"name\":\"John Doe1\"},{\"id\":2,\"name\":\"John Doe2\"},{\"id\":3,\"name\":\"John Doe3\"},{\"id\":4,\"name\":\"John Doe4\"}]"))
                 .andExpect(header().string("Content-Type", "application/json"));
