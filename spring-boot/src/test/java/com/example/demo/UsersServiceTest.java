@@ -2,9 +2,11 @@ package com.example.demo;
 
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -111,12 +113,110 @@ public class UsersServiceTest {
     @Test
     void shouldDeleteUser() {
         when(userRepository.existsById(1L)).thenReturn(true);
-        // do nothing when deleteById is called
 
         boolean result = usersService.deleteUser(1L);
 
         assertEquals(true, result);
 
         verify(userRepository).deleteById(1L);
+    }
+
+    @Test
+    void shouldFindUserByName() {
+        User user = new User(
+                1L,
+                "John Doe",
+                "john.doe@email.com",
+                "password123"
+        );
+
+        when(userRepository.findByName("John Doe"))
+                .thenReturn(Optional.of(user));
+
+
+        User result = usersService.findByName("John Doe");
+
+
+        assertEquals("John Doe", result.getName());
+
+        verify(userRepository)
+                .findByName("John Doe");
+    }
+
+
+    @Test
+    void shouldThrowExceptionWhenNameNotFound() {
+
+        when(userRepository.findByName("Unknown"))
+                .thenReturn(Optional.empty());
+
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> usersService.findByName("Unknown")
+        );
+
+
+        assertEquals(
+                "User not found",
+                exception.getMessage()
+        );
+
+        verify(userRepository)
+                .findByName("Unknown");
+    }
+
+
+    @Test
+    void shouldFindUserByEmail() {
+
+        User user = new User(
+                1L,
+                "John Doe",
+                "john.doe@email.com",
+                "password123"
+        );
+
+
+        when(userRepository.findByEmail("john.doe@email.com"))
+                .thenReturn(Optional.of(user));
+
+
+        User result =
+                usersService.findByEmail("john.doe@email.com");
+
+
+        assertEquals(
+                "john.doe@email.com",
+                result.getEmail()
+        );
+
+
+        verify(userRepository)
+                .findByEmail("john.doe@email.com");
+    }
+
+
+    @Test
+    void shouldThrowExceptionWhenEmailNotFound() {
+
+        when(userRepository.findByEmail("missing@email.com"))
+                .thenReturn(Optional.empty());
+
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> usersService.findByEmail("missing@email.com")
+        );
+
+
+        assertEquals(
+                "User not found",
+                exception.getMessage()
+        );
+
+
+        verify(userRepository)
+                .findByEmail("missing@email.com");
     }
 }

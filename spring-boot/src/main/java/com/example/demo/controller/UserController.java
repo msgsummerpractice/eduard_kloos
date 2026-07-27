@@ -75,4 +75,31 @@ public class UserController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<User> findByName(
+            @PathVariable String name) {
+
+        try {
+            return ResponseEntity.ok(
+                    userService.findByName(name)
+            );
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<User> findByEmail(
+            @PathVariable String email) {
+
+        try {
+            return ResponseEntity.ok(
+                    userService.findByEmail(email)
+            );
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

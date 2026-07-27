@@ -7,6 +7,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.repository.UserRepository;
+
+import io.micrometer.common.lang.NonNull;
+
 import com.example.demo.model.User;
 
 @Service
@@ -39,13 +42,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(User user) {
+    public User createUser(@NonNull User user) {
         logger.info("Creating new user: {}", user);
         return userRepository.save(user);
     }
 
     @Override
-    public boolean deleteUser(Long id) {
+    public boolean deleteUser(@NonNull Long id) {
     logger.info("Deleting user with id: {}", id);
 
     if (!userRepository.existsById(id)) {
@@ -64,6 +67,39 @@ public class UserServiceImpl implements UserService {
         existing.setEmail(user.getEmail());
         existing.setPassword(user.getPassword());
         return userRepository.save(existing);
+    }
+
+    @Override
+    public User findByName(String name) {
+        logger.info("Searching user by name: {}", name);
+
+        return userRepository.findByName(name)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+
+    @Override
+    public User findByEmail(String email) {
+        logger.info("Searching user by email: {}", email);
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+
+    @Override
+    public List<User> searchByName(String name) {
+        logger.info("Searching users containing name: {}", name);
+
+        return userRepository.findByNameContainingIgnoreCase(name);
+    }
+
+
+    @Override
+    public List<User> searchByEmail(String email) {
+        logger.info("Searching users containing email: {}", email);
+
+        return userRepository.findByEmailContainingIgnoreCase(email);
     }
     
 }

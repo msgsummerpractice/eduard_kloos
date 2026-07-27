@@ -45,4 +45,39 @@ public class UsersControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void testFindUserByNameEndpoint() throws Exception {
+        mockMvc.perform(get("/api/users/name/John Doe1"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        "{\"id\":1,\"name\":\"John Doe1\",\"email\":\"john.doe1@email.com\",\"password\":\"password123\"}"
+                ))
+                .andExpect(header().string("Content-Type", "application/json"));
+    }
+
+
+    @Test
+    public void testFindUserByNameNotFound() throws Exception {
+        mockMvc.perform(get("/api/users/name/Unknown"))
+                .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    public void testFindUserByEmailEndpoint() throws Exception {
+        mockMvc.perform(get("/api/users/email/john.doe1@email.com"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        "{\"id\":1,\"name\":\"John Doe1\",\"email\":\"john.doe1@email.com\",\"password\":\"password123\"}"
+                ))
+                .andExpect(header().string("Content-Type", "application/json"));
+    }
+
+
+    @Test
+    public void testFindUserByEmailNotFound() throws Exception {
+        mockMvc.perform(get("/api/users/email/notfound@email.com"))
+                .andExpect(status().isNotFound());
+    }
+
 }
