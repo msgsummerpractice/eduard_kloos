@@ -5,6 +5,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
 import com.example.demo.config.AppProperties;
+import com.example.demo.dto.UpdateUserRequest;
+import com.example.demo.dto.UserRequest;
+import com.example.demo.dto.UserResponse;
+import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.User;
 import java.util.List;
 import java.util.Map;
@@ -38,74 +42,107 @@ public class UserController {
         return appProperties.getMessage();
     }
 
-    @RequestMapping
-    public ResponseEntity<List<User>> getAll(@RequestParam(defaultValue = "10") @Min(value = 1, message = "Limit must be at least 1") int limit) {
+    @GetMapping
+    public ResponseEntity<List<UserResponse>> getAll(@RequestParam(defaultValue = "10") @Min(value = 1, message = "Limit must be at least 1") int limit) {
+
         logger.info("Fetching first {} users", limit);
-        return ResponseEntity.ok(
-                userService.getAllUsers(limit)
-        );
+
+        List<UserResponse> users = userService.getAllUsers(limit)
+                .stream()
+                .map(UserMapper::toResponse)
+                .toList();
+
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getById(@PathVariable Long id) {
-        logger.info("Fetching user with id: {}", id);
+    public ResponseEntity<UserResponse> getById(@PathVariable Long id) {
+
         try {
-            return ResponseEntity.ok(userService.getUserById(id));
-        } catch (RuntimeException e) {
+
+            User user = userService.getUserById(id);
+
+            return ResponseEntity.ok(
+                    UserMapper.toResponse(user)
+            );
+
+        } catch(RuntimeException e) {
+
             return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping
-    public ResponseEntity<User> create(@Valid @RequestBody User user) {
-        logger.info("Creating new user: {}", user);
-        User createdUser = userService.createUser(user);
+    public ResponseEntity<UserResponse> create(@Valid @RequestBody UserRequest request) {
+
+        User user = UserMapper.toEntity(request);
+
+        User savedUser = userService.createUser(user);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(createdUser);
+                .body(UserMapper.toResponse(savedUser));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody User user) {
-        logger.info("Updating user with id: {}", id);
-        try {
-            return ResponseEntity.ok(userService.updateUser(id, user));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<UserResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+
+        User user = new User();
+
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+
+
+        User updated = userService.updateUser(id, user);
+
+
+        return ResponseEntity.ok(
+                UserMapper.toResponse(updated)
+        );
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
+
         logger.info("Deleting user with id: {}", id);
+
         if (userService.deleteUser(id)) {
             return ResponseEntity.noContent().build();
         }
+
         return ResponseEntity.notFound().build();
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<User> patch(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+    public ResponseEntity<UserResponse> patch(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
 
         logger.info("Partially updating user with id: {}", id);
 
         try {
+
+            User updated = userService.patchUser(id, updates);
+
             return ResponseEntity.ok(
-                    userService.patchUser(id, updates)
+                    UserMapper.toResponse(updated)
             );
+
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<User> findByName(@PathVariable String name) {
+    public ResponseEntity<UserResponse> findByName(@PathVariable String name) {
 
         try {
+
+            User user = userService.findByName(name);
+
             return ResponseEntity.ok(
-                    userService.findByName(name)
+                    UserMapper.toResponse(user)
             );
+
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
@@ -113,12 +150,16 @@ public class UserController {
 
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<User> findByEmail(@PathVariable String email) {
+    public ResponseEntity<UserResponse> findByEmail(@PathVariable String email) {
 
         try {
+
+            User user = userService.findByEmail(email);
+
             return ResponseEntity.ok(
-                    userService.findByEmail(email)
+                    UserMapper.toResponse(user)
             );
+
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

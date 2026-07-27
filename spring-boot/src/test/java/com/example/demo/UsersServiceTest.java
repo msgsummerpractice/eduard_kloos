@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,6 +21,7 @@ import com.example.demo.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("dev")
+@Transactional
 public class UsersServiceTest {
     
     @Mock

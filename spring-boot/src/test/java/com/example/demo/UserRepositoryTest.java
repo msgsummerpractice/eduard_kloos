@@ -1,6 +1,6 @@
 package com.example.demo;
 
-
+import jakarta.transaction.Transactional;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 
@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("dev")
+@Transactional
 public class UserRepositoryTest {
 
     @Autowired
