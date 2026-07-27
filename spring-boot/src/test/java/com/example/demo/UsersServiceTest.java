@@ -12,14 +12,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import com.example.demo.model.User;
-import com.example.demo.repository.InMemoryUserRepository;
 import com.example.demo.service.UserServiceImpl;
+import com.example.demo.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class UsersServiceTest {
     
     @Mock
-    private InMemoryUserRepository userRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
     private UserServiceImpl usersService;
@@ -33,24 +33,24 @@ public class UsersServiceTest {
             new User(4L, "John Doe4", "john.doe4@email.com", "password123")
         );
 
-        when(userRepository.findAll(10)).thenReturn(users);
+        when(userRepository.findAll()).thenReturn(users);
 
         List<User> result = usersService.getAllUsers(10);
 
         assertEquals(4, result.size());
 
-        verify(userRepository).findAll(10);
+        verify(userRepository).findAll();
     }
 
     @Test 
     void shouldReturnEmptyListWhenNoUsers() {
-        when(userRepository.findAll(10)).thenReturn(List.of());
+        when(userRepository.findAll()).thenReturn(List.of());
 
         List<User> result = usersService.getAllUsers(10);
 
         assertEquals(0, result.size());
 
-        verify(userRepository).findAll(10);
+        verify(userRepository).findAll();
     }
 
     @Test
@@ -110,7 +110,8 @@ public class UsersServiceTest {
 
     @Test
     void shouldDeleteUser() {
-        when(userRepository.deleteById(1L)).thenReturn(true);
+        when(userRepository.existsById(1L)).thenReturn(true);
+        // do nothing when deleteById is called
 
         boolean result = usersService.deleteUser(1L);
 

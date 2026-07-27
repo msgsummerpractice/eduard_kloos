@@ -25,10 +25,10 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllUsers(int limit) {
         logger.info("Fetching first {} users from the repository", limit);
         return userRepository
-            .findAll(limit)
-            .stream()
-            .limit(limit)
-            .toList();
+                .findAll()
+                .stream()
+                .limit(limit)
+                .toList();
     }
 
     @Override
@@ -46,9 +46,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean deleteUser(Long id) {
-        logger.info("Deleting user with id: {}", id);
-        return userRepository.deleteById(id);
+    logger.info("Deleting user with id: {}", id);
+
+    if (!userRepository.existsById(id)) {
+        return false;
     }
+
+    userRepository.deleteById(id);
+    return true;
+}
 
     @Override
     public User updateUser(Long id, User user) {
