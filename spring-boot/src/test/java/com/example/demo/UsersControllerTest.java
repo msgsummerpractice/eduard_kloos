@@ -152,4 +152,78 @@ public class UsersControllerTest {
 				.andExpect(jsonPath("$.password").doesNotExist());
 	}
 
+    @Test
+    public void testCreateUserWithEmptyName() throws Exception {
+
+        mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "name":"",
+                            "email":"test@email.com",
+                            "password":"password123"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testCreateUserWithoutEmail() throws Exception {
+
+        mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "name":"Test User",
+                            "password":"password123"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testCreateUserWithShortPassword() throws Exception {
+
+        mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "name":"Test User",
+                            "email":"test@email.com",
+                            "password":"123"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testCreateUserWithShortName() throws Exception {
+
+        mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "name":"Jo",
+                            "email":"test@email.com",
+                            "password":"password123"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testUpdateUserWithInvalidData() throws Exception {
+
+        mockMvc.perform(put("/api/users/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "name":"",
+                            "email":"test@email.com",
+                            "password":"123"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
 }
