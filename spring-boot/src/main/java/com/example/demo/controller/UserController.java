@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 import com.example.demo.service.UserService;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
 import com.example.demo.config.AppProperties;
@@ -51,13 +52,13 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
         logger.info("Creating new user: {}", user);
         return userService.createUser(user);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody User user) {
         logger.info("Updating user with id: {}", id);
         try {
             return ResponseEntity.ok(userService.updateUser(id, user));

@@ -25,4 +25,24 @@ public class UsersControllerTest {
                 .andExpect(header().string("Content-Type", "application/json"));
     }
 
+    @Test
+    public void testGetUserByIdEndpoint() throws Exception {
+        mockMvc.perform(get("/api/users/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":1,\"name\":\"John Doe1\",\"email\":\"john.doe1@email.com\",\"password\":\"password123\"}"));
+    }
+
+    @Test
+    public void testGetUserByIdNotFound() throws Exception {
+        mockMvc.perform(get("/api/users/999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetUsersWithInvalidLimit() throws Exception {
+        mockMvc.perform(get("/api/users")
+                .param("limit", "0"))
+                .andExpect(status().isBadRequest());
+    }
+
 }

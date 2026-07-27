@@ -31,4 +31,22 @@ public class UserRepositoryTest {
                         .anyMatch(u -> u.getName().equals("Jane Doe"))
         );
     }
+
+    @Test
+    public void shouldDeleteUser() {
+        boolean deleted = userRepository.deleteById(1L);
+        assertTrue(deleted);
+
+        List<User> users = userRepository.findAll(10);
+        assertEquals(3, users.size());
+        assertFalse(users.stream()
+                        .anyMatch(u -> u.getId().equals(1L))
+        );
+    }
+
+    @Test
+    public void shouldFindUserById() {
+        User user = userRepository.findById(2L).orElse(null);
+        assertNotNull(user);
+    }
 }
