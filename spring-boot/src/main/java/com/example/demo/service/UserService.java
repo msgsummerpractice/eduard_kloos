@@ -13,4 +13,6 @@ public interface UserService {
     User findByEmail(String email);
     List<User> searchByName(String name);
     List<User> searchByEmail(String email);
+    List<User> searchTop10Users(String username);
+    long countUsers();
 }

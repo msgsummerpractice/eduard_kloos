@@ -102,4 +102,21 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmailContainingIgnoreCase(email);
     }
     
+    @Override
+    public List<User> searchTop10Users(String name) {
+
+        logger.info("Searching top 10 users by name: {}", name);
+
+        return userRepository
+                .findTop10ByNameContainingIgnoreCaseOrderByNameAsc(name);
+    }
+
+
+    @Override
+    public long countUsers() {
+
+        logger.info("Counting users");
+
+        return userRepository.countUsers();
+    }
 }

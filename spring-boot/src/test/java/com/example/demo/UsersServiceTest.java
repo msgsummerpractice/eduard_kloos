@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import com.example.demo.model.User;
@@ -18,6 +19,7 @@ import com.example.demo.service.UserServiceImpl;
 import com.example.demo.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("dev")
 public class UsersServiceTest {
     
     @Mock
