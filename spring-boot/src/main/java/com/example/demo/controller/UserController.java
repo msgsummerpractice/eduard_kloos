@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 import com.example.demo.service.UserService;
-
+import org.springframework.http.MediaType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
@@ -42,7 +42,12 @@ public class UserController {
         return appProperties.getMessage();
     }
 
-    @GetMapping
+    @GetMapping(
+        produces = {
+                MediaType.APPLICATION_JSON_VALUE,
+                MediaType.APPLICATION_XML_VALUE
+        }
+    )
     public ResponseEntity<List<UserResponse>> getAll(@RequestParam(defaultValue = "10") @Min(value = 1, message = "Limit must be at least 1") int limit) {
 
         logger.info("Fetching first {} users", limit);
@@ -55,7 +60,13 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(
+        value = "/{id}",
+        produces = {
+                MediaType.APPLICATION_JSON_VALUE,
+                MediaType.APPLICATION_XML_VALUE
+        }
+    )
     public ResponseEntity<UserResponse> getById(@PathVariable Long id) {
 
         try {
