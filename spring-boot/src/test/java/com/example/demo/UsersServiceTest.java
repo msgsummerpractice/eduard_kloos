@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -72,13 +73,17 @@ public class UsersServiceTest {
 
     @Test
     void shouldThrowExceptionWhenUserNotFound() {
-        when(userRepository.findById(1L)).thenReturn(java.util.Optional.empty());
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        try {
-            usersService.getUserById(1L);
-        } catch (RuntimeException e) {
-            assertEquals("User not found", e.getMessage());
-        }
+        RuntimeException exception = assertThrows(
+            RuntimeException.class,
+            () -> usersService.getUserById(1L)
+        );
+
+        assertEquals(
+            "User not found",
+            exception.getMessage()
+        );
     }
 
     @Test
@@ -220,5 +225,40 @@ public class UsersServiceTest {
 
         verify(userRepository)
                 .findByEmail("missing@email.com");
+    }
+
+    @Test
+    void shouldPatchUser() {
+
+        User existingUser = new User(
+                1L,
+                "John Doe",
+                "john@email.com",
+                "password123"
+        );
+
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.of(existingUser));
+
+        when(userRepository.save(existingUser))
+                .thenReturn(existingUser);
+
+
+        Map<String, Object> updates = Map.of(
+                "name", "Updated Name"
+        );
+
+
+        User result = usersService.patchUser(1L, updates);
+
+
+        assertEquals(
+                "Updated Name",
+                result.getName()
+        );
+
+
+        verify(userRepository).findById(1L);
+        verify(userRepository).save(existingUser);
     }
 }

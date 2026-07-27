@@ -3,6 +3,7 @@ package com.example.demo.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -67,6 +68,21 @@ public class UserServiceImpl implements UserService {
         existing.setEmail(user.getEmail());
         existing.setPassword(user.getPassword());
         return userRepository.save(existing);
+    }
+
+    public User patchUser(Long id, Map<String, Object> updates) {
+
+        User user = getUserById(id);
+
+        if (updates.containsKey("name")) {
+            user.setName((String) updates.get("name"));
+        }
+
+        if (updates.containsKey("email")) {
+            user.setEmail((String) updates.get("email"));
+        }
+
+        return userRepository.save(user);
     }
 
     @Override

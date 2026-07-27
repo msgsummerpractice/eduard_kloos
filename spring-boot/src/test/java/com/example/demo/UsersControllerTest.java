@@ -2,12 +2,14 @@ package com.example.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 
 @SpringBootTest
@@ -82,4 +84,56 @@ public class UsersControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+	@Test
+    public void testCreateUserEndpoint() throws Exception {
+
+	mockMvc.perform(post("/api/users")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content("""
+					{
+							"name": "New User",
+							"email": "new@email.com",
+							"password": "password123"
+					}
+					"""))
+			.andExpect(status().isCreated())
+			.andExpect(jsonPath("$.name").value("New User"));
+	}
+
+	@Test
+	public void testUpdateUserEndpoint() throws Exception {
+
+	mockMvc.perform(put("/api/users/1")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content("""
+					{
+							"name": "Updated User",
+							"email": "updated@email.com",
+							"password": "password123"
+					}
+					"""))
+			.andExpect(status().isOk());
+	}
+
+	@Test
+	public void testDeleteUserEndpoint() throws Exception {
+
+	mockMvc.perform(delete("/api/users/1"))
+			.andExpect(status().isNoContent());
+	}
+
+	@Test
+	public void testPatchUserEndpoint() throws Exception {
+
+	mockMvc.perform(patch("/api/users/1")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content("""
+					{
+							"name": "Patched Name"
+					}
+					"""))
+			.andExpect(status().isOk());
+	}
+
+        
 }

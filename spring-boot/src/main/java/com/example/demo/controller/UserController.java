@@ -7,9 +7,12 @@ import jakarta.validation.constraints.Min;
 import com.example.demo.config.AppProperties;
 import com.example.demo.model.User;
 import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 
@@ -36,9 +39,11 @@ public class UserController {
     }
 
     @RequestMapping
-    public List<User> getAll(@RequestParam(defaultValue = "10") @Min(value = 1, message = "Limit must be at least 1") int limit) {
+    public ResponseEntity<List<User>> getAll(@RequestParam(defaultValue = "10") @Min(value = 1, message = "Limit must be at least 1") int limit) {
         logger.info("Fetching first {} users", limit);
-        return userService.getAllUsers(limit);
+        return ResponseEntity.ok(
+                userService.getAllUsers(limit)
+        );
     }
 
     @GetMapping("/{id}")
@@ -52,9 +57,13 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
+    public ResponseEntity<User> create(@Valid @RequestBody User user) {
         logger.info("Creating new user: {}", user);
-        return userService.createUser(user);
+        User createdUser = userService.createUser(user);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createdUser);
     }
 
     @PutMapping("/{id}")
@@ -76,9 +85,22 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<User> patch(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+
+        logger.info("Partially updating user with id: {}", id);
+
+        try {
+            return ResponseEntity.ok(
+                    userService.patchUser(id, updates)
+            );
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @GetMapping("/name/{name}")
-    public ResponseEntity<User> findByName(
-            @PathVariable String name) {
+    public ResponseEntity<User> findByName(@PathVariable String name) {
 
         try {
             return ResponseEntity.ok(
@@ -91,8 +113,7 @@ public class UserController {
 
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<User> findByEmail(
-            @PathVariable String email) {
+    public ResponseEntity<User> findByEmail(@PathVariable String email) {
 
         try {
             return ResponseEntity.ok(
