@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface UserService {
-    List<User> getAllUsers(int limit);
+    List<User> getAllUsers(int page, int size);
     User getUserById(Long id);
     User createUser(User user);
     User updateUser(Long id, User user);

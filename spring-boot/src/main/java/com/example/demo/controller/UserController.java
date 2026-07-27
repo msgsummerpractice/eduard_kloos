@@ -48,11 +48,11 @@ public class UserController {
                 MediaType.APPLICATION_XML_VALUE
         }
     )
-    public ResponseEntity<List<UserResponse>> getAll(@RequestParam(defaultValue = "10") @Min(value = 1, message = "Limit must be at least 1") int limit) {
+    public ResponseEntity<List<UserResponse>> getAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
-        logger.info("Fetching first {} users", limit);
+        logger.info("Fetching page {} of users with size {}", page, size);
 
-        List<UserResponse> users = userService.getAllUsers(limit)
+        List<UserResponse> users = userService.getAllUsers(page, size)
                 .stream()
                 .map(UserMapper::toResponse)
                 .toList();
