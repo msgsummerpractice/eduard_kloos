@@ -9,7 +9,7 @@ public interface UserService {
     User getUserById(Long id);
     User createUser(User user);
     User updateUser(Long id, User user);
-    boolean deleteUser(Long id);
+    void deleteUser(Long id);
     User patchUser(Long id, Map<String, Object> updates);
     User findByName(String name);
     User findByEmail(String email);

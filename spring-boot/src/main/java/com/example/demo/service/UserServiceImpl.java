@@ -13,6 +13,7 @@ import com.example.demo.repository.UserRepository;
 
 import io.micrometer.common.lang.NonNull;
 
+import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.User;
 
 @Service
@@ -41,7 +42,7 @@ public class UserServiceImpl implements UserService {
     public User getUserById(Long id) {
         logger.info("Fetching user with id: {}", id);
         return userRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
     }
 
     @Override
@@ -51,16 +52,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean deleteUser(@NonNull Long id) {
-    logger.info("Deleting user with id: {}", id);
+    public void deleteUser(@NonNull Long id) {
+        logger.info("Deleting user with id: {}", id);
 
-    if (!userRepository.existsById(id)) {
-        return false;
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException("User not found");
+        }
+
+        userRepository.deleteById(id);
     }
-
-    userRepository.deleteById(id);
-    return true;
-}
 
     @Override
     public User updateUser(Long id, User user) {
@@ -92,7 +92,9 @@ public class UserServiceImpl implements UserService {
         logger.info("Searching user by name: {}", name);
 
         return userRepository.findByName(name)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User with name " + name + " not found"
+                ));
     }
 
 
@@ -101,7 +103,7 @@ public class UserServiceImpl implements UserService {
         logger.info("Searching user by email: {}", email);
 
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
     }
 
 

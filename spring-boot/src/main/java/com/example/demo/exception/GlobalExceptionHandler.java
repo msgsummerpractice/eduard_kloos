@@ -33,4 +33,25 @@ public class GlobalExceptionHandler {
         return errors;
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleRuntimeException(
+            RuntimeException ex) {
+
+        return new ErrorResponse(
+                404,
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleUserNotFound(
+            UserNotFoundException ex) {
+
+        return Map.of(
+                "error",
+                ex.getMessage()
+        );
+    }
 }

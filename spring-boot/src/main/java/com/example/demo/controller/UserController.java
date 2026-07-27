@@ -48,7 +48,15 @@ public class UserController {
                 MediaType.APPLICATION_XML_VALUE
         }
     )
-    public ResponseEntity<List<UserResponse>> getAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<List<UserResponse>> getAll(
+        @RequestParam(defaultValue = "0")
+        @Min(value = 0, message = "Page must be 0 or greater")
+        int page,
+
+        @RequestParam(defaultValue = "10")
+        @Min(value = 1, message = "Size must be at least 1")
+        int size
+    ) {
 
         logger.info("Fetching page {} of users with size {}", page, size);
 
@@ -69,18 +77,11 @@ public class UserController {
     )
     public ResponseEntity<UserResponse> getById(@PathVariable Long id) {
 
-        try {
+        User user = userService.getUserById(id);
 
-            User user = userService.getUserById(id);
-
-            return ResponseEntity.ok(
-                    UserMapper.toResponse(user)
-            );
-
-        } catch(RuntimeException e) {
-
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(
+                UserMapper.toResponse(user)
+        );
     }
 
     @PostMapping
@@ -118,11 +119,9 @@ public class UserController {
 
         logger.info("Deleting user with id: {}", id);
 
-        if (userService.deleteUser(id)) {
-            return ResponseEntity.noContent().build();
-        }
+        userService.deleteUser(id);
 
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
@@ -130,49 +129,30 @@ public class UserController {
 
         logger.info("Partially updating user with id: {}", id);
 
-        try {
-
-            User updated = userService.patchUser(id, updates);
+        User updated = userService.patchUser(id, updates);
 
             return ResponseEntity.ok(
                     UserMapper.toResponse(updated)
             );
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
     }
 
     @GetMapping("/name/{name}")
     public ResponseEntity<UserResponse> findByName(@PathVariable String name) {
 
-        try {
-
-            User user = userService.findByName(name);
+        User user = userService.findByName(name);
 
             return ResponseEntity.ok(
                     UserMapper.toResponse(user)
             );
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
     }
-
 
     @GetMapping("/email/{email}")
     public ResponseEntity<UserResponse> findByEmail(@PathVariable String email) {
 
-        try {
-
-            User user = userService.findByEmail(email);
+        User user = userService.findByEmail(email);
 
             return ResponseEntity.ok(
                     UserMapper.toResponse(user)
             );
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
     }
 }

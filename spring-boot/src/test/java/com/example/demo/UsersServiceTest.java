@@ -3,6 +3,7 @@ package com.example.demo;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
@@ -12,9 +13,14 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
+import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.service.UserServiceImpl;
 import com.example.demo.repository.UserRepository;
@@ -32,31 +38,42 @@ public class UsersServiceTest {
 
     @Test
     void shouldReturnUsers() {
+
         List<User> users = List.of(
-            new User(1L, "John Doe1", "john.doe1@email.com", "password123"),
-            new User(2L, "John Doe2", "john.doe2@email.com", "password123"),
-            new User(3L, "John Doe3", "john.doe3@email.com", "password123"),
-            new User(4L, "John Doe4", "john.doe4@email.com", "password123")
+                new User(1L, "John Doe1", "john.doe1@email.com", "password123"),
+                new User(2L, "John Doe2", "john.doe2@email.com", "password123"),
+                new User(3L, "John Doe3", "john.doe3@email.com", "password123"),
+                new User(4L, "John Doe4", "john.doe4@email.com", "password123")
         );
 
-        when(userRepository.findAll()).thenReturn(users);
+        Page<User> page = new PageImpl<>(users);
 
-        List<User> result = usersService.getAllUsers(10);
+        when(userRepository.findAll(any(Pageable.class)))
+                .thenReturn(page);
+
+        List<User> result = usersService.getAllUsers(0, 10);
 
         assertEquals(4, result.size());
 
-        verify(userRepository).findAll();
+        verify(userRepository)
+                .findAll(any(Pageable.class));
     }
 
-    @Test 
+   @Test
     void shouldReturnEmptyListWhenNoUsers() {
-        when(userRepository.findAll()).thenReturn(List.of());
 
-        List<User> result = usersService.getAllUsers(10);
+        Page<User> page = new PageImpl<>(List.of());
+
+
+        when(userRepository.findAll(any(Pageable.class)))
+                .thenReturn(page);
+
+        List<User> result = usersService.getAllUsers(0, 10);
 
         assertEquals(0, result.size());
 
-        verify(userRepository).findAll();
+        verify(userRepository)
+                .findAll(any(Pageable.class));
     }
 
     @Test
@@ -82,7 +99,7 @@ public class UsersServiceTest {
         );
 
         assertEquals(
-            "User not found",
+            "User with id 1 not found",
             exception.getMessage()
         );
     }
@@ -120,13 +137,41 @@ public class UsersServiceTest {
 
     @Test
     void shouldDeleteUser() {
-        when(userRepository.existsById(1L)).thenReturn(true);
 
-        boolean result = usersService.deleteUser(1L);
+        when(userRepository.existsById(1L))
+                .thenReturn(true);
 
-        assertEquals(true, result);
+        usersService.deleteUser(1L);
 
-        verify(userRepository).deleteById(1L);
+        verify(userRepository)
+                .existsById(1L);
+
+        verify(userRepository)
+                .deleteById(1L);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDeleteUserNotFound() {
+
+        when(userRepository.existsById(1L))
+                .thenReturn(false);
+
+
+        UserNotFoundException exception =
+                assertThrows(
+                        UserNotFoundException.class,
+                        () -> usersService.deleteUser(1L)
+                );
+
+
+        assertEquals(
+                "User not found",
+                exception.getMessage()
+        );
+
+
+        verify(userRepository)
+                .existsById(1L);
     }
 
     @Test
@@ -159,15 +204,15 @@ public class UsersServiceTest {
                 .thenReturn(Optional.empty());
 
 
-        RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> usersService.findByName("Unknown")
-        );
+        UserNotFoundException exception = assertThrows(
+        UserNotFoundException.class,
+        () -> usersService.findByName("Unknown")
+    );
 
 
         assertEquals(
-                "User not found",
-                exception.getMessage()
+        "User with name Unknown not found",
+        exception.getMessage()
         );
 
         verify(userRepository)
@@ -212,15 +257,15 @@ public class UsersServiceTest {
                 .thenReturn(Optional.empty());
 
 
-        RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> usersService.findByEmail("missing@email.com")
+        UserNotFoundException exception = assertThrows(
+        UserNotFoundException.class,
+        () -> usersService.findByEmail("missing@email.com")
         );
 
 
         assertEquals(
-                "User not found",
-                exception.getMessage()
+        "User with email missing@email.com not found",
+        exception.getMessage()
         );
 
 

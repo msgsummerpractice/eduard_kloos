@@ -6,6 +6,10 @@ import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.example.demo.model.User;
+import com.example.demo.repository.UserRepository;
+
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -21,13 +25,42 @@ public class UsersControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Test
     public void testGetUsersEndpoint() throws Exception {
+
         mockMvc.perform(get("/api/users")
-                .param("limit", "10"))
+                .param("page", "0")
+                .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[{\"id\":1,\"name\":\"John Doe1\"},{\"id\":2,\"name\":\"John Doe2\"},{\"id\":3,\"name\":\"John Doe3\"},{\"id\":4,\"name\":\"John Doe4\"}]"))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(content().json("""
+                        [
+                            {
+                                "id":1,
+                                "name":"John Doe1",
+                                "email":"john.doe1@email.com"
+                            },
+                            {
+                                "id":2,
+                                "name":"John Doe2",
+                                "email":"john.doe2@email.com"
+                            },
+                            {
+                                "id":3,
+                                "name":"John Doe3",
+                                "email":"john.doe3@email.com"
+                            },
+                            {
+                                "id":4,
+                                "name":"John Doe4",
+                                "email":"john.doe4@email.com"
+                            }
+                        ]
+                        """))
+                .andExpect(content()
+                        .contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -40,14 +73,19 @@ public class UsersControllerTest {
 
     @Test
     public void testGetUserByIdNotFound() throws Exception {
+
         mockMvc.perform(get("/api/users/999"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error")
+                        .value("User with id 999 not found"));
     }
 
     @Test
-    public void testGetUsersWithInvalidLimit() throws Exception {
+    public void testGetUsersWithInvalidSize() throws Exception {
+
         mockMvc.perform(get("/api/users")
-                .param("limit", "0"))
+                .param("page", "0")
+                .param("size", "0"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -65,8 +103,11 @@ public class UsersControllerTest {
 
     @Test
     public void testFindUserByNameNotFound() throws Exception {
+
         mockMvc.perform(get("/api/users/name/Unknown"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error")
+                        .value("User with name Unknown not found"));
     }
 
 
@@ -86,11 +127,15 @@ public class UsersControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-
     @Test
     public void testFindUserByEmailNotFound() throws Exception {
+
         mockMvc.perform(get("/api/users/email/notfound@email.com"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error")
+                        .value(
+                        "User with email notfound@email.com not found"
+                        ));
     }
 
 	@Test
@@ -130,11 +175,20 @@ public class UsersControllerTest {
 	}
 
 	@Test
-	public void testDeleteUserEndpoint() throws Exception {
+    public void testDeleteUserEndpoint() throws Exception {
 
-	mockMvc.perform(delete("/api/users/1"))
-			.andExpect(status().isNoContent());
-	}
+        User user = userRepository.saveAndFlush(
+        new User(
+                null,
+                "Delete User",
+                "delete@email.com",
+                "password123"
+        )
+    );
+
+        mockMvc.perform(delete("/api/users/" + user.getId()))
+                .andExpect(status().isNoContent());
+    }
 
 	@Test
 	public void testPatchUserEndpoint() throws Exception {
@@ -224,6 +278,26 @@ public class UsersControllerTest {
                         }
                         """))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testDeleteUserNotFound() throws Exception {
+
+        mockMvc.perform(delete("/api/users/999"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error")
+                        .value("User not found"));
+    }
+
+    @Test
+    public void testGetUsersWithPagination() throws Exception {
+
+        mockMvc.perform(get("/api/users")
+                .param("page", "0")
+                .param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()")
+                        .value(2));
     }
 
 }
