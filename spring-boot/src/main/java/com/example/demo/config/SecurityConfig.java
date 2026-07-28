@@ -38,6 +38,9 @@ public class SecurityConfig {
                     )
                     .permitAll()
 
+                    .requestMatchers("/api/users/**")
+                    .hasAnyRole("USER","ADMIN")
+
                     .anyRequest()
                     .authenticated()
             )
@@ -45,6 +48,7 @@ public class SecurityConfig {
             .formLogin(
                     form -> form
                             .loginPage("/login")
+                            .usernameParameter("email")
                             .permitAll()
             );
 
