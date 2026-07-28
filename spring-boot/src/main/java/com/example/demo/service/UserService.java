@@ -1,11 +1,12 @@
 package com.example.demo.service;
 
 import com.example.demo.model.User;
+import org.springframework.data.domain.Page;
 import java.util.List;
 import java.util.Map;
 
 public interface UserService {
-    List<User> getAllUsers(int page, int size);
+    Page<User> getAllUsers(int page, int size);
     User getUserById(Long id);
     User createUser(User user);
     User updateUser(Long id, User user);

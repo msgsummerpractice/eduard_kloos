@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Pageable;
-
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -29,13 +29,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers(int page, int size) {
+    public Page<User> getAllUsers(int page, int size) {
         logger.info("Fetching page {} of users with size {}", page, size);
         Pageable pageable =
             PageRequest.of(page, size);
 
-        return userRepository.findAll(pageable)
-            .getContent();
+        return userRepository.findAll(pageable);
     }
 
     @Override
@@ -73,7 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public User patchUser(Long id, Map<String, Object> updates) {
-
+        logger.info("Patching user with id: {}", id);
         User user = getUserById(id);
 
         if (updates.containsKey("name")) {

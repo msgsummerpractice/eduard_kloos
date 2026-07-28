@@ -16,6 +16,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -48,7 +49,7 @@ public class UserController {
                 MediaType.APPLICATION_XML_VALUE
         }
     )
-    public ResponseEntity<List<UserResponse>> getAll(
+    public ResponseEntity<Page<UserResponse>> getAll(
         @RequestParam(defaultValue = "0")
         @Min(value = 0, message = "Page must be 0 or greater")
         int page,
@@ -60,10 +61,8 @@ public class UserController {
 
         logger.info("Fetching page {} of users with size {}", page, size);
 
-        List<UserResponse> users = userService.getAllUsers(page, size)
-                .stream()
-                .map(UserMapper::toResponse)
-                .toList();
+        Page<UserResponse> users = userService.getAllUsers(page, size)
+                .map(UserMapper::toResponse);
 
         return ResponseEntity.ok(users);
     }

@@ -51,9 +51,9 @@ public class UsersServiceTest {
         when(userRepository.findAll(any(Pageable.class)))
                 .thenReturn(page);
 
-        List<User> result = usersService.getAllUsers(0, 10);
+        Page<User> result = usersService.getAllUsers(0, 10);
 
-        assertEquals(4, result.size());
+        assertEquals(4, result.getSize());
 
         verify(userRepository)
                 .findAll(any(Pageable.class));
@@ -68,9 +68,9 @@ public class UsersServiceTest {
         when(userRepository.findAll(any(Pageable.class)))
                 .thenReturn(page);
 
-        List<User> result = usersService.getAllUsers(0, 10);
+        Page<User> result = usersService.getAllUsers(0, 10);
 
-        assertEquals(0, result.size());
+        assertEquals(0, result.getSize());
 
         verify(userRepository)
                 .findAll(any(Pageable.class));
