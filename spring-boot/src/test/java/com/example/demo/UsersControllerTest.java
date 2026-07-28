@@ -35,32 +35,16 @@ public class UsersControllerTest {
                 .param("page", "0")
                 .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        [
-                            {
-                                "id":1,
-                                "name":"John Doe1",
-                                "email":"john.doe1@email.com"
-                            },
-                            {
-                                "id":2,
-                                "name":"John Doe2",
-                                "email":"john.doe2@email.com"
-                            },
-                            {
-                                "id":3,
-                                "name":"John Doe3",
-                                "email":"john.doe3@email.com"
-                            },
-                            {
-                                "id":4,
-                                "name":"John Doe4",
-                                "email":"john.doe4@email.com"
-                            }
-                        ]
-                        """))
-                .andExpect(content()
-                        .contentType(MediaType.APPLICATION_JSON));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content.length()").value(4))
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("John Doe1"))
+                .andExpect(jsonPath("$.content[0].email").value("john.doe1@email.com"))
+                .andExpect(jsonPath("$.content[3].id").value(4))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalElements").value(4))
+                .andExpect(jsonPath("$.totalPages").value(1));
     }
 
     @Test
@@ -296,8 +280,11 @@ public class UsersControllerTest {
                 .param("page", "0")
                 .param("size", "2"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()")
-                        .value(2));
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(2))
+                .andExpect(jsonPath("$.totalElements").exists())
+                .andExpect(jsonPath("$.totalPages").exists());
     }
 
 }
