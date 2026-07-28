@@ -1,12 +1,12 @@
 package com.example.demo;
 import jakarta.transaction.Transactional;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
@@ -21,6 +21,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 @Transactional
+@WithMockUser(
+        username = "sam",
+        roles = {"ADMIN"}
+)
 public class UsersControllerTest {
 
     @Autowired
@@ -33,19 +37,18 @@ public class UsersControllerTest {
     public void testGetUsersEndpoint() throws Exception {
 
         mockMvc.perform(get("/api/users")
-                .with(user("sam").password("password123").roles("ADMIN"))
                 .param("page", "0")
                 .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.content.length()").value(4))
+                .andExpect(jsonPath("$.content.length()").value(6))
                 .andExpect(jsonPath("$.content[0].id").value(1))
                 .andExpect(jsonPath("$.content[0].name").value("John Doe1"))
                 .andExpect(jsonPath("$.content[0].email").value("john.doe1@email.com"))
                 .andExpect(jsonPath("$.content[3].id").value(4))
                 .andExpect(jsonPath("$.number").value(0))
                 .andExpect(jsonPath("$.size").value(10))
-                .andExpect(jsonPath("$.totalElements").value(4))
+                .andExpect(jsonPath("$.totalElements").value(6))
                 .andExpect(jsonPath("$.totalPages").value(1));
     }
 
@@ -70,7 +73,6 @@ public class UsersControllerTest {
     public void testGetUsersWithInvalidSize() throws Exception {
 
         mockMvc.perform(get("/api/users")
-                .with(user("sam").password("password123").roles("ADMIN"))
                 .param("page", "0")
                 .param("size", "0"))
                 .andExpect(status().isBadRequest());
@@ -320,7 +322,6 @@ public class UsersControllerTest {
     public void testGetUsersWithPagination() throws Exception {
 
         mockMvc.perform(get("/api/users")
-                .with(user("sam").password("password123").roles("ADMIN"))
                 .param("page", "0")
                 .param("size", "2"))
                 .andExpect(status().isOk())

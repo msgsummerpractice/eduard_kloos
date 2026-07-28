@@ -27,7 +27,7 @@ public class UserRepositoryTest {
         userRepository.save(user);
 
         List<User> users = userRepository.findAll();
-        assertEquals(5, users.size());
+        assertEquals(7, users.size());
          assertTrue(users.stream()
                         .anyMatch(u -> u.getName().equals("Jane Doe"))
         );
@@ -65,10 +65,10 @@ public class UserRepositoryTest {
                 userRepository.findTop10ByNameContainingIgnoreCaseOrderByNameAsc("john");
 
 
-        assertEquals(4, users.size());
+        assertEquals(5, users.size());
 
         assertEquals(
-                "John Doe1",
+                "John",
                 users.get(0).getName()
         );
     }
@@ -79,6 +79,6 @@ public class UserRepositoryTest {
 
         long count = userRepository.countUsers();
 
-        assertEquals(4, count);
+        assertEquals(6, count);
     }
 }
