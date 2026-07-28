@@ -34,7 +34,8 @@ public class SecurityConfig {
                     .requestMatchers(
                             "/login",
                             "/css/**",
-                            "/js/**"
+                            "/js/**",
+                            "/api/auth/**"
                     )
                     .permitAll()
 
