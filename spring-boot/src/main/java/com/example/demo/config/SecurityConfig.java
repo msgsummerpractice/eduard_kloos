@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.example.demo.security.JwtAuthenticationFilter;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 
 @Configuration
 @EnableWebSecurity
@@ -47,10 +49,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
 
                     .requestMatchers(
-                            "/api/auth/**",
-                            "/login",
-                            "/css/**",
-                            "/js/**"
+                            "/api/auth/**"
                     )
                     .permitAll()
 
@@ -59,6 +58,16 @@ public class SecurityConfig {
 
                     .anyRequest()
                     .authenticated()
+            )
+
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(
+                        (request, response, authException) -> 
+                            response.sendError(
+                                    HttpServletResponse.SC_UNAUTHORIZED,
+                                    "Unauthorized"
+                            )
+                )
             )
 
             .addFilterBefore(
