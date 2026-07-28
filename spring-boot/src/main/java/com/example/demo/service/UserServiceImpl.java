@@ -3,10 +3,17 @@ package com.example.demo.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
-
+import java.util.Map;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.repository.UserRepository;
+
+import io.micrometer.common.lang.NonNull;
+
+import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.User;
 
 @Service
@@ -22,32 +29,36 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers(int limit) {
-        logger.info("Fetching first {} users from the repository", limit);
-        return userRepository
-            .findAll(limit)
-            .stream()
-            .limit(limit)
-            .toList();
+    public Page<User> getAllUsers(int page, int size) {
+        logger.info("Fetching page {} of users with size {}", page, size);
+        Pageable pageable =
+            PageRequest.of(page, size);
+
+        return userRepository.findAll(pageable);
     }
 
     @Override
     public User getUserById(Long id) {
         logger.info("Fetching user with id: {}", id);
         return userRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
     }
 
     @Override
-    public User createUser(User user) {
+    public User createUser(@NonNull User user) {
         logger.info("Creating new user: {}", user);
         return userRepository.save(user);
     }
 
     @Override
-    public boolean deleteUser(Long id) {
+    public void deleteUser(@NonNull Long id) {
         logger.info("Deleting user with id: {}", id);
-        return userRepository.deleteById(id);
+
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException("User not found");
+        }
+
+        userRepository.deleteById(id);
     }
 
     @Override
@@ -59,5 +70,72 @@ public class UserServiceImpl implements UserService {
         existing.setPassword(user.getPassword());
         return userRepository.save(existing);
     }
+
+    public User patchUser(Long id, Map<String, Object> updates) {
+        logger.info("Patching user with id: {}", id);
+        User user = getUserById(id);
+
+        if (updates.containsKey("name")) {
+            user.setName((String) updates.get("name"));
+        }
+
+        if (updates.containsKey("email")) {
+            user.setEmail((String) updates.get("email"));
+        }
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User findByName(String name) {
+        logger.info("Searching user by name: {}", name);
+
+        return userRepository.findByName(name)
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User with name " + name + " not found"
+                ));
+    }
+
+
+    @Override
+    public User findByEmail(String email) {
+        logger.info("Searching user by email: {}", email);
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
+    }
+
+
+    @Override
+    public List<User> searchByName(String name) {
+        logger.info("Searching users containing name: {}", name);
+
+        return userRepository.findByNameContainingIgnoreCase(name);
+    }
+
+
+    @Override
+    public List<User> searchByEmail(String email) {
+        logger.info("Searching users containing email: {}", email);
+
+        return userRepository.findByEmailContainingIgnoreCase(email);
+    }
     
+    @Override
+    public List<User> searchTop10Users(String name) {
+
+        logger.info("Searching top 10 users by name: {}", name);
+
+        return userRepository
+                .findTop10ByNameContainingIgnoreCaseOrderByNameAsc(name);
+    }
+
+
+    @Override
+    public long countUsers() {
+
+        logger.info("Counting users");
+
+        return userRepository.countUsers();
+    }
 }
