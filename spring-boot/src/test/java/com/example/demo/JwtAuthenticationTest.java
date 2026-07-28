@@ -3,14 +3,21 @@ package com.example.demo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.example.demo.service.MfaService;
+
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import org.springframework.http.MediaType;
+
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import static org.mockito.Mockito.when;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -27,9 +34,18 @@ public class JwtAuthenticationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    private MfaService mfaService;
+
     private String loginAndGetToken() throws Exception {
 
-        String response = mockMvc.perform(post("/api/auth/login")
+        when(mfaService.verifyCode(
+                "sam@test.com",
+                "123456"
+        ))
+        .thenReturn(true);
+
+        mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -37,6 +53,19 @@ public class JwtAuthenticationTest {
                             "password":"password123"
                         }
                         """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mfaRequired")
+                        .value(true));
+
+        String response =
+                mockMvc.perform(post("/api/auth/verify-mfa")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "email":"sam@test.com",
+                                    "code":"123456"
+                                }
+                                """))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -50,7 +79,7 @@ public class JwtAuthenticationTest {
     }
 
     @Test
-    public void testLoginReturnsJwtToken() throws Exception {
+    public void testLoginRequiresMfa() throws Exception {
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -61,7 +90,9 @@ public class JwtAuthenticationTest {
                         }
                         """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
+                .andExpect(jsonPath("$.token").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.mfaRequired")
+                        .value(true))
                 .andExpect(jsonPath("$.roles[0]")
                         .value("ADMIN"));
 
@@ -74,8 +105,8 @@ public class JwtAuthenticationTest {
 
         mockMvc.perform(get("/api/users")
                 .header(
-                    "Authorization",
-                    "Bearer " + token
+                        "Authorization",
+                        "Bearer " + token
                 )
                 .param("page","0")
                 .param("size","10"))
@@ -98,8 +129,8 @@ public class JwtAuthenticationTest {
 
         mockMvc.perform(get("/api/users")
                 .header(
-                    "Authorization",
-                    "Bearer invalid-token"
+                        "Authorization",
+                        "Bearer invalid-token"
                 )
                 .param("page","0")
                 .param("size","10"))

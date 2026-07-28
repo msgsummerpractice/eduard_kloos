@@ -60,6 +60,10 @@ public class SecurityConfig {
                     .authenticated()
             )
 
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+
             .exceptionHandling(exception -> exception
                 .authenticationEntryPoint(
                         (request, response, authException) -> 
