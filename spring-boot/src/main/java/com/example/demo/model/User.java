@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -44,11 +45,15 @@ public class User {
     @Size(min = 6, message = "Password must be at least 6 characters long")
     private String password;
 
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name="user_roles",
+        joinColumns =
+            @JoinColumn(name="user_id"),
+
+        inverseJoinColumns =
+            @JoinColumn(name="role_id")
     )
-    @ManyToMany
     private Set<Role> roles;
 
 }

@@ -116,6 +116,7 @@ public class UserController {
                 MediaType.APPLICATION_XML_VALUE
         }
     )
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<UserResponse> getById(
     @Parameter(
         description = "ID of the user",
@@ -137,6 +138,7 @@ public class UserController {
         @ApiResponse(responseCode = "400", description = "Invalid request")
     })
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> create(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "User creation data",
@@ -174,6 +176,7 @@ public class UserController {
             )
     })
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> update(
         @Parameter(
                 description = "ID of the user to update",
@@ -205,6 +208,7 @@ public class UserController {
         @ApiResponse(responseCode = "404", description = "User not found")
     })
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
 
         logger.info("Deleting user with id: {}", id);
@@ -233,6 +237,7 @@ public class UserController {
             )
     })
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> patch(
             @Parameter(
                     description = "ID of the user to update",
@@ -271,6 +276,7 @@ public class UserController {
             )
     })
     @GetMapping("/name/{name}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<UserResponse> findByName(
         @Parameter(
                 description = "Name of the user",
@@ -301,6 +307,7 @@ public class UserController {
             )
     })
     @GetMapping("/email/{email}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<UserResponse> findByEmail(
         @Parameter(
                 description = "Email address of the user",
