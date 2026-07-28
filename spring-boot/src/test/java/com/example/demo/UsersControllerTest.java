@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
@@ -32,6 +33,7 @@ public class UsersControllerTest {
     public void testGetUsersEndpoint() throws Exception {
 
         mockMvc.perform(get("/api/users")
+                .with(user("sam").password("password123").roles("ADMIN"))
                 .param("page", "0")
                 .param("size", "10"))
                 .andExpect(status().isOk())
@@ -68,6 +70,7 @@ public class UsersControllerTest {
     public void testGetUsersWithInvalidSize() throws Exception {
 
         mockMvc.perform(get("/api/users")
+                .with(user("sam").password("password123").roles("ADMIN"))
                 .param("page", "0")
                 .param("size", "0"))
                 .andExpect(status().isBadRequest());
@@ -191,6 +194,45 @@ public class UsersControllerTest {
 	}
 
     @Test
+    public void testPatchUserWithInvalidName() throws Exception {
+
+        mockMvc.perform(patch("/api/users/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "name":"Jo"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testPatchUserWithInvalidEmail() throws Exception {
+
+        mockMvc.perform(patch("/api/users/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "email":"invalid-email"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testPatchUserWithShortPassword() throws Exception {
+
+        mockMvc.perform(patch("/api/users/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "password":"123"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void testCreateUserWithEmptyName() throws Exception {
 
         mockMvc.perform(post("/api/users")
@@ -277,6 +319,7 @@ public class UsersControllerTest {
     public void testGetUsersWithPagination() throws Exception {
 
         mockMvc.perform(get("/api/users")
+                .with(user("sam").password("password123").roles("ADMIN"))
                 .param("page", "0")
                 .param("size", "2"))
                 .andExpect(status().isOk())

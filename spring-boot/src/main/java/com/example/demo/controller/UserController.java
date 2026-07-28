@@ -11,12 +11,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
 import com.example.demo.config.AppProperties;
+import com.example.demo.dto.PatchUserRequest;
 import com.example.demo.dto.UpdateUserRequest;
 import com.example.demo.dto.UserRequest;
 import com.example.demo.dto.UserResponse;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.User;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +39,13 @@ public class UserController {
 
     private final AppProperties appProperties;
 
-    public UserController(UserService userService, AppProperties appProperties) {
+    private final UserMapper userMapper;
+
+    public UserController(UserService userService, AppProperties appProperties, UserMapper userMapper) {
         logger.info("UserController initialized with UserService");
         this.userService = userService;
         this.appProperties = appProperties;
+        this.userMapper = userMapper;
     }
 
     @Operation(
@@ -59,9 +62,9 @@ public class UserController {
     }
 
     @Operation(
-    summary = "Get all users",
-    description = "Returns a paginated list of users"
-)
+        summary = "Get all users",
+        description = "Returns a paginated list of users"
+    )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
@@ -87,7 +90,7 @@ public class UserController {
         logger.info("Fetching page {} of users with size {}", page, size);
 
         Page<UserResponse> users = userService.getAllUsers(page, size)
-                .map(UserMapper::toResponse);
+            .map(userMapper::toResponse);
 
         return ResponseEntity.ok(users);
     }
@@ -124,7 +127,7 @@ public class UserController {
         User user = userService.getUserById(id);
 
         return ResponseEntity.ok(
-                UserMapper.toResponse(user)
+                userMapper.toResponse(user)
         );
     }
 
@@ -142,13 +145,13 @@ public class UserController {
         @Valid @RequestBody UserRequest request
     ) {
 
-        User user = UserMapper.toEntity(request);
+        User user = userMapper.toEntity(request);
 
         User savedUser = userService.createUser(user);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(UserMapper.toResponse(savedUser));
+                .body(userMapper.toResponse(savedUser));
     }
 
 
@@ -185,18 +188,14 @@ public class UserController {
         @Valid @RequestBody UpdateUserRequest request
     ) {
 
-        User user = new User();
-
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        User user = userMapper.toEntity(request);
 
 
         User updated = userService.updateUser(id, user);
 
 
         return ResponseEntity.ok(
-                UserMapper.toResponse(updated)
+                userMapper.toResponse(updated)
         );
     }
 
@@ -235,26 +234,26 @@ public class UserController {
     })
     @PatchMapping("/{id}")
     public ResponseEntity<UserResponse> patch(
-        @Parameter(
-                description = "ID of the user to update",
-                example = "1"
-        )
-        @PathVariable Long id,
+            @Parameter(
+                    description = "ID of the user to update",
+                    example = "1"
+            )
+            @PathVariable Long id,
 
-        @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                description = "Fields to update",
-                required = true
-        )
-        @RequestBody Map<String, Object> updates
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Fields to update",
+                    required = true
+            )
+            @Valid @RequestBody PatchUserRequest request
     ) {
 
         logger.info("Partially updating user with id: {}", id);
 
-        User updated = userService.patchUser(id, updates);
+        User updated = userService.patchUser(id, request);
 
-            return ResponseEntity.ok(
-                    UserMapper.toResponse(updated)
-            );
+        return ResponseEntity.ok(
+                userMapper.toResponse(updated)
+        );
     }
 
     @Operation(
@@ -282,7 +281,7 @@ public class UserController {
         User user = userService.findByName(name);
 
             return ResponseEntity.ok(
-                    UserMapper.toResponse(user)
+                    userMapper.toResponse(user)
             );
     }
 
@@ -313,7 +312,7 @@ public class UserController {
         User user = userService.findByEmail(email);
 
             return ResponseEntity.ok(
-                    UserMapper.toResponse(user)
+                    userMapper.toResponse(user)
             );
     }
 }

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import com.example.demo.repository.UserRepository;
 
 import io.micrometer.common.lang.NonNull;
 
+import com.example.demo.dto.PatchUserRequest;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.User;
 
@@ -22,10 +24,12 @@ public class UserServiceImpl implements UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     
     private UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
-        logger.info("UserServiceImpl initialized with UserRepository");
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        logger.info("UserServiceImpl initialized with UserRepository and PasswordEncoder");
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -47,6 +51,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(@NonNull User user) {
         logger.info("Creating new user: {}", user);
+        user.setPassword(
+            passwordEncoder.encode(user.getPassword())
+        );
         return userRepository.save(user);
     }
 
@@ -67,23 +74,33 @@ public class UserServiceImpl implements UserService {
         User existing = getUserById(id);
         existing.setName(user.getName());
         existing.setEmail(user.getEmail());
-        existing.setPassword(user.getPassword());
+        existing.setPassword(
+            passwordEncoder.encode(user.getPassword())
+        );
         return userRepository.save(existing);
     }
 
-    public User patchUser(Long id, Map<String, Object> updates) {
-        logger.info("Patching user with id: {}", id);
-        User user = getUserById(id);
+    @Override
+    public User patchUser(Long id, PatchUserRequest request) {
+    logger.info("Patching user with id: {}", id);
 
-        if (updates.containsKey("name")) {
-            user.setName((String) updates.get("name"));
-        }
+    User user = getUserById(id);
 
-        if (updates.containsKey("email")) {
-            user.setEmail((String) updates.get("email"));
-        }
+    if (request.getName() != null) {
+        user.setName(request.getName());
+    }
 
-        return userRepository.save(user);
+    if (request.getEmail() != null) {
+        user.setEmail(request.getEmail());
+    }
+
+    if (request.getPassword() != null) {
+        user.setPassword(
+                passwordEncoder.encode(request.getPassword())
+        );
+    }
+
+    return userRepository.save(user);
     }
 
     @Override

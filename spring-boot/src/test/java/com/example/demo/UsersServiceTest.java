@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -16,10 +15,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import com.example.demo.dto.PatchUserRequest;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.service.UserServiceImpl;
@@ -32,6 +33,9 @@ public class UsersServiceTest {
     
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserServiceImpl usersService;
@@ -108,7 +112,15 @@ public class UsersServiceTest {
     void shouldCreateUser() {
         User user = new User(null, "John Doe", "john.doe@email.com", "password123");
 
-        when(userRepository.save(user)).thenReturn(new User(1L, "John Doe", "john.doe@email.com", "password123"));
+        when(userRepository.save(any(User.class)))
+        .thenReturn(
+            new User(
+                1L,
+                "John Doe",
+                "john.doe@email.com",
+                "password123"
+            )
+        );
 
         User result = usersService.createUser(user);
 
@@ -122,17 +134,51 @@ public class UsersServiceTest {
 
     @Test
     void shouldUpdateUser() {
-        User existingUser = new User(1L, "John Doe", "john.doe@email.com", "password123");
 
-        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(existingUser));
-        when(userRepository.save(existingUser)).thenReturn(existingUser);
+        User existingUser = new User(
+                1L,
+                "John Doe",
+                "john.doe@email.com",
+                "oldpassword"
+        );
 
-        User result = usersService.updateUser(1L, existingUser);
+        User updateData = new User(
+                null,
+                "Updated John",
+                "updated.email@email.com",
+                "newpassword123"
+        );
 
-        assertEquals(existingUser, result);
 
-        verify(userRepository).findById(1L);
-        verify(userRepository).save(existingUser);
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.of(existingUser));
+
+
+        when(passwordEncoder.encode("newpassword123"))
+                .thenReturn("encodedPassword");
+
+
+        when(userRepository.save(existingUser))
+                .thenReturn(existingUser);
+
+
+        User result = usersService.updateUser(1L, updateData);
+
+
+        assertEquals(1L, result.getId());
+        assertEquals("Updated John", result.getName());
+        assertEquals("updated.email@email.com", result.getEmail());
+        assertEquals("encodedPassword", result.getPassword());
+
+
+        verify(userRepository)
+                .findById(1L);
+
+        verify(passwordEncoder)
+                .encode("newpassword123");
+
+        verify(userRepository)
+                .save(existingUser);
     }
 
     @Test
@@ -290,12 +336,11 @@ public class UsersServiceTest {
                 .thenReturn(existingUser);
 
 
-        Map<String, Object> updates = Map.of(
-                "name", "Updated Name"
-        );
+        PatchUserRequest request = new PatchUserRequest();
+        request.setName("Updated Name");
 
 
-        User result = usersService.patchUser(1L, updates);
+        User result = usersService.patchUser(1L, request);
 
 
         assertEquals(
