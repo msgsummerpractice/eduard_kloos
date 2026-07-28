@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.MfaVerifyRequest;
 import com.example.demo.dto.SignInRequest;
 import com.example.demo.dto.SignInResponse;
 import com.example.demo.service.AuthService;
@@ -27,4 +28,13 @@ public class AuthController {
                 authService.login(request)
         );
     } 
+
+    @PostMapping("/verify-mfa")
+    public ResponseEntity<SignInResponse> verifyMfa(@RequestBody MfaVerifyRequest request) {
+
+        return ResponseEntity.ok(
+                authService.verifyMfa(request)
+        );
+    }
+    
 }

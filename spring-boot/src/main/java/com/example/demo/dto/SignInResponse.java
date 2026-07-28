@@ -11,4 +11,5 @@ public class SignInResponse {
     
     private String token;
     private List<String> roles;
+    private boolean mfaRequired;
 }

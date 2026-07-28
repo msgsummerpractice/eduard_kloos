@@ -1,6 +1,8 @@
 package com.example.demo.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.example.demo.dto.MfaVerifyRequest;
 import com.example.demo.dto.SignInRequest;
 import com.example.demo.dto.SignInResponse;
 import com.example.demo.exception.UserNotFoundException;
@@ -13,11 +15,13 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final MfaService mfaService;
 
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, MfaService mfaService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.mfaService = mfaService;
     }
 
     @Override
@@ -30,9 +34,42 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid password");
         }
 
-        var token = jwtService.generateToken(user.getEmail());
+        mfaService.generateCode(user.getEmail());
 
-        return new SignInResponse(token, user.getRoles().stream().map(role -> role.getName()).toList());
+        return new SignInResponse(null, user.getRoles().stream().map(role -> role.getName()).toList(), true);
 
     }
+
+    @Override
+    public SignInResponse verifyMfa(MfaVerifyRequest request) {
+
+        boolean valid = mfaService.verifyCode(
+                request.getEmail(),
+                request.getCode()
+        );
+
+        if (!valid) {
+            throw new RuntimeException("Invalid MFA code");
+        }
+
+        var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(
+                        () -> new UserNotFoundException("User not found")
+                );
+
+        var token = jwtService.generateToken(
+                user.getEmail()
+        );
+
+        return new SignInResponse(
+                token,
+                user.getRoles()
+                        .stream()
+                        .map(role -> role.getName())
+                        .toList(),
+                false
+        );
+    }
+
+    
 }
