@@ -20,7 +20,7 @@ public class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
-    
+
     @Test
     public void shouldSaveAndFindUsers() {
         User user = new User(null, "Jane Doe", "jane.doe@email.com", "password123", null);
@@ -28,9 +28,8 @@ public class UserRepositoryTest {
 
         List<User> users = userRepository.findAll();
         assertEquals(7, users.size());
-         assertTrue(users.stream()
-                        .anyMatch(u -> u.getName().equals("Jane Doe"))
-        );
+        assertTrue(users.stream()
+                .anyMatch(u -> u.getName().equals("Jane Doe")));
     }
 
     @Test
@@ -61,18 +60,14 @@ public class UserRepositoryTest {
     @Test
     void shouldFindTop10UsersByNameIgnoreCase() {
 
-        List<User> users =
-                userRepository.findTop10ByNameContainingIgnoreCaseOrderByNameAsc("john");
-
+        List<User> users = userRepository.findTop10ByNameContainingIgnoreCaseOrderByNameAsc("john");
 
         assertEquals(5, users.size());
 
         assertEquals(
                 "John",
-                users.get(0).getName()
-        );
+                users.get(0).getName());
     }
-
 
     @Test
     void shouldCountUsers() {

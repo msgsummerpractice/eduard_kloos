@@ -1,4 +1,5 @@
 package com.example.demo.controller;
+
 import com.example.demo.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,7 +35,7 @@ import org.springframework.validation.annotation.Validated;
 public class UserController {
 
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
-    
+
     private final UserService userService;
 
     private final AppProperties appProperties;
@@ -48,104 +49,65 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
-    @Operation(
-        summary = "Get application message",
-        description = "Returns configured application message"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Message returned successfully"
-    )
+    @Operation(summary = "Get application message", description = "Returns configured application message")
+    @ApiResponse(responseCode = "200", description = "Message returned successfully")
     @GetMapping("/message")
     public String getMessage() {
         return appProperties.getMessage();
     }
 
-    @Operation(
-        summary = "Get all users",
-        description = "Returns a paginated list of users"
-    )
+    @Operation(summary = "Get all users", description = "Returns a paginated list of users")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized"),
-        @ApiResponse(responseCode = "403", description = "Forbidden")
+            @ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
     })
-    @GetMapping(
-        produces = {
-                MediaType.APPLICATION_JSON_VALUE,
-                MediaType.APPLICATION_XML_VALUE
-        }
-    )
+    @GetMapping(produces = {
+            MediaType.APPLICATION_JSON_VALUE,
+            MediaType.APPLICATION_XML_VALUE
+    })
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getAll(
-        @RequestParam(defaultValue = "0")
-        @Min(value = 0, message = "Page must be 0 or greater")
-        int page,
+            @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page must be 0 or greater") int page,
 
-        @RequestParam(defaultValue = "10")
-        @Min(value = 1, message = "Size must be at least 1")
-        int size
-    ) {
+            @RequestParam(defaultValue = "10") @Min(value = 1, message = "Size must be at least 1") int size) {
 
         logger.info("Fetching page {} of users with size {}", page, size);
 
         Page<UserResponse> users = userService.getAllUsers(page, size)
-            .map(userMapper::toResponse);
+                .map(userMapper::toResponse);
 
         return ResponseEntity.ok(users);
     }
 
-    @Operation(
-        summary = "Get user by ID",
-        description = "Returns a single user based on the provided ID"
-    )
+    @Operation(summary = "Get user by ID", description = "Returns a single user based on the provided ID")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "User found"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found"
-            )
+            @ApiResponse(responseCode = "200", description = "User found"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
-    @GetMapping(
-        value = "/{id}",
-        produces = {
-                MediaType.APPLICATION_JSON_VALUE,
-                MediaType.APPLICATION_XML_VALUE
-        }
-    )
+    @GetMapping(value = "/{id}", produces = {
+            MediaType.APPLICATION_JSON_VALUE,
+            MediaType.APPLICATION_XML_VALUE
+    })
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<UserResponse> getById(
-    @Parameter(
-        description = "ID of the user",
-        example = "1"
-    )
-    @PathVariable Long id
-    ) {
+            @Parameter(description = "ID of the user", example = "1") @PathVariable Long id) {
 
         User user = userService.getUserById(id);
 
         return ResponseEntity.ok(
-                userMapper.toResponse(user)
-        );
+                userMapper.toResponse(user));
     }
 
     @Operation(summary = "Create a new user")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "User created"),
-        @ApiResponse(responseCode = "400", description = "Invalid request")
+            @ApiResponse(responseCode = "201", description = "User created"),
+            @ApiResponse(responseCode = "400", description = "Invalid request")
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> create(
-        @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "User creation data",
-            required = true
-        )
-        @Valid @RequestBody UserRequest request
-    ) {
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User creation data", required = true) @Valid @RequestBody UserRequest request) {
 
         User user = userMapper.toEntity(request);
 
@@ -156,56 +118,31 @@ public class UserController {
                 .body(userMapper.toResponse(savedUser));
     }
 
-
-    @Operation(
-        summary = "Update user",
-        description = "Updates an existing user by ID"
-    )
+    @Operation(summary = "Update user", description = "Updates an existing user by ID")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "User updated successfully"
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid user data"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found"
-            )
+            @ApiResponse(responseCode = "200", description = "User updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid user data"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> update(
-        @Parameter(
-                description = "ID of the user to update",
-                example = "1"
-        )
-        @PathVariable Long id,
+            @Parameter(description = "ID of the user to update", example = "1") @PathVariable Long id,
 
-        @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                description = "Updated user information",
-                required = true
-        )
-        @Valid @RequestBody UpdateUserRequest request
-    ) {
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Updated user information", required = true) @Valid @RequestBody UpdateUserRequest request) {
 
         User user = userMapper.toEntity(request);
 
-
         User updated = userService.updateUser(id, user);
 
-
         return ResponseEntity.ok(
-                userMapper.toResponse(updated)
-        );
+                userMapper.toResponse(updated));
     }
 
     @Operation(summary = "Delete a user")
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "User deleted"),
-        @ApiResponse(responseCode = "404", description = "User not found")
+            @ApiResponse(responseCode = "204", description = "User deleted"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -218,108 +155,56 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(
-        summary = "Partially update user",
-        description = "Updates one or more fields of an existing user"
-    )
+    @Operation(summary = "Partially update user", description = "Updates one or more fields of an existing user")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "User updated successfully"
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid update data"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found"
-            )
+            @ApiResponse(responseCode = "200", description = "User updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid update data"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> patch(
-            @Parameter(
-                    description = "ID of the user to update",
-                    example = "1"
-            )
-            @PathVariable Long id,
+            @Parameter(description = "ID of the user to update", example = "1") @PathVariable Long id,
 
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Fields to update",
-                    required = true
-            )
-            @Valid @RequestBody PatchUserRequest request
-    ) {
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Fields to update", required = true) @Valid @RequestBody PatchUserRequest request) {
 
         logger.info("Partially updating user with id: {}", id);
 
         User updated = userService.patchUser(id, request);
 
         return ResponseEntity.ok(
-                userMapper.toResponse(updated)
-        );
+                userMapper.toResponse(updated));
     }
 
-    @Operation(
-        summary = "Find user by name",
-        description = "Returns a user based on the provided name"
-    )
+    @Operation(summary = "Find user by name", description = "Returns a user based on the provided name")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "User found successfully"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found"
-            )
+            @ApiResponse(responseCode = "200", description = "User found successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/name/{name}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<UserResponse> findByName(
-        @Parameter(
-                description = "Name of the user",
-                example = "John"
-        ) 
-        @PathVariable String name) {
+            @Parameter(description = "Name of the user", example = "John") @PathVariable String name) {
 
         User user = userService.findByName(name);
 
-            return ResponseEntity.ok(
-                    userMapper.toResponse(user)
-            );
+        return ResponseEntity.ok(
+                userMapper.toResponse(user));
     }
 
-
-    @Operation(
-        summary = "Find user by email",
-        description = "Returns a user based on the provided email"
-    )
+    @Operation(summary = "Find user by email", description = "Returns a user based on the provided email")
     @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "User found successfully"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found"
-            )
+            @ApiResponse(responseCode = "200", description = "User found successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/email/{email}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<UserResponse> findByEmail(
-        @Parameter(
-                description = "Email address of the user",
-                example = "john@example.com"
-        )
-        @PathVariable String email
-    ) {
+            @Parameter(description = "Email address of the user", example = "john@example.com") @PathVariable String email) {
 
         User user = userService.findByEmail(email);
 
-            return ResponseEntity.ok(
-                    userMapper.toResponse(user)
-            );
+        return ResponseEntity.ok(
+                userMapper.toResponse(user));
     }
 }

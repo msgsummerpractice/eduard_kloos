@@ -1,4 +1,5 @@
 package com.example.demo.service;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,8 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final MfaService mfaService;
 
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, MfaService mfaService) {
+    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService,
+            MfaService mfaService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -45,8 +47,7 @@ public class AuthServiceImpl implements AuthService {
 
         boolean valid = mfaService.verifyCode(
                 request.getEmail(),
-                request.getCode()
-        );
+                request.getCode());
 
         if (!valid) {
             throw new RuntimeException("Invalid MFA code");
@@ -54,12 +55,10 @@ public class AuthServiceImpl implements AuthService {
 
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(
-                        () -> new UserNotFoundException("User not found")
-                );
+                        () -> new UserNotFoundException("User not found"));
 
         var token = jwtService.generateToken(
-                user.getEmail()
-        );
+                user.getEmail());
 
         return new SignInResponse(
                 token,
@@ -67,9 +66,7 @@ public class AuthServiceImpl implements AuthService {
                         .stream()
                         .map(role -> role.getName())
                         .toList(),
-                false
-        );
+                false);
     }
 
-    
 }

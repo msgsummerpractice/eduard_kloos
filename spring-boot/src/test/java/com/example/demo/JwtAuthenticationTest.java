@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.example.demo.service.MfaService;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
@@ -37,13 +37,14 @@ public class JwtAuthenticationTest {
     @MockBean
     private MfaService mfaService;
 
-    private String loginAndGetToken() throws Exception {
+    private String token;
 
+    @BeforeEach
+    public void setUp() throws Exception {
         when(mfaService.verifyCode(
                 "sam@test.com",
-                "123456"
-        ))
-        .thenReturn(true);
+                "123456"))
+                .thenReturn(true);
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -57,15 +58,14 @@ public class JwtAuthenticationTest {
                 .andExpect(jsonPath("$.mfaRequired")
                         .value(true));
 
-        String response =
-                mockMvc.perform(post("/api/auth/verify-mfa")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                    "email":"sam@test.com",
-                                    "code":"123456"
-                                }
-                                """))
+        String response = mockMvc.perform(post("/api/auth/verify-mfa")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "email":"sam@test.com",
+                            "code":"123456"
+                        }
+                        """))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -73,9 +73,7 @@ public class JwtAuthenticationTest {
 
         JsonNode json = objectMapper.readTree(response);
 
-        return json
-                .get("token")
-                .asText();
+        this.token = json.get("token").asText();
     }
 
     @Test
@@ -91,51 +89,37 @@ public class JwtAuthenticationTest {
                         """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value(org.hamcrest.Matchers.nullValue()))
-                .andExpect(jsonPath("$.mfaRequired")
-                        .value(true))
-                .andExpect(jsonPath("$.roles[0]")
-                        .value("ADMIN"));
-
+                .andExpect(jsonPath("$.mfaRequired").value(true))
+                .andExpect(jsonPath("$.roles[0]").value("ADMIN"));
     }
 
     @Test
     public void testAccessUsersEndpointWithJwt() throws Exception {
 
-        String token = loginAndGetToken();
-
         mockMvc.perform(get("/api/users")
-                .header(
-                        "Authorization",
-                        "Bearer " + token
-                )
-                .param("page","0")
-                .param("size","10"))
+                .header("Authorization", "Bearer " + this.token)
+                .param("page", "0")
+                .param("size", "10"))
                 .andExpect(status().isOk());
-
     }
 
     @Test
     public void testAccessUsersEndpointWithoutJwt() throws Exception {
 
         mockMvc.perform(get("/api/users")
-                .param("page","0")
-                .param("size","10"))
+                .param("page", "0")
+                .param("size", "10"))
                 .andExpect(status().isUnauthorized());
-
     }
 
     @Test
     public void testInvalidJwtToken() throws Exception {
 
         mockMvc.perform(get("/api/users")
-                .header(
-                        "Authorization",
-                        "Bearer invalid-token"
-                )
-                .param("page","0")
-                .param("size","10"))
+                .header("Authorization", "Bearer invalid-token")
+                .param("page", "0")
+                .param("size", "10"))
                 .andExpect(status().isUnauthorized());
-
     }
 
 }

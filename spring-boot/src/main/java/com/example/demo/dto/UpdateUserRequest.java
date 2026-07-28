@@ -14,7 +14,7 @@ public class UpdateUserRequest {
 
     @Schema(example = "John Doe")
     @NotBlank(message = "Name cannot be empty")
-    @Size(min = 3, max = 50)
+    @Size(min = 3, max = 50, message = "Name must be between 3 and 50 characters long")
     private String name;
 
     @Schema(example = "john@example.com")
@@ -24,6 +24,6 @@ public class UpdateUserRequest {
 
     @Schema(example = "newPassword123")
     @NotBlank(message = "Password cannot be empty")
-    @Size(min = 8)
+    @Size(min = 8, max = 50, message = "Password must be between 8 and 50 characters")
     private String password;
 }

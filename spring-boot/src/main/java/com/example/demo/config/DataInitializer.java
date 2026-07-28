@@ -13,12 +13,12 @@ import com.example.demo.repository.UserRepository;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-
 @Configuration
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner init(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    CommandLineRunner init(UserRepository userRepository, RoleRepository roleRepository,
+            PasswordEncoder passwordEncoder) {
 
         return args -> {
 
@@ -37,12 +37,10 @@ public class DataInitializer {
             john.setName("John");
             john.setEmail("john@test.com");
             john.setPassword(
-                    passwordEncoder.encode("password123")
-            );
+                    passwordEncoder.encode("password123"));
 
             john.setRoles(
-                    Set.of(userRole)
-            );
+                    Set.of(userRole));
 
             userRepository.save(john);
 
@@ -51,12 +49,10 @@ public class DataInitializer {
             sam.setName("Sam");
             sam.setEmail("sam@test.com");
             sam.setPassword(
-                    passwordEncoder.encode("password123")
-            );
+                    passwordEncoder.encode("password123"));
 
             sam.setRoles(
-                    Set.of(adminRole)
-            );
+                    Set.of(adminRole));
 
             userRepository.save(sam);
 

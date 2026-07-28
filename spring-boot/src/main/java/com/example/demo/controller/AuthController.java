@@ -11,30 +11,26 @@ import com.example.demo.dto.SignInRequest;
 import com.example.demo.dto.SignInResponse;
 import com.example.demo.service.AuthService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
-    
+
     private final AuthService authService;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
-
     @PostMapping("/login")
-    public ResponseEntity<SignInResponse> login(@RequestBody SignInRequest request
-    ) {
+    public ResponseEntity<SignInResponse> login(@RequestBody SignInRequest request) {
         return ResponseEntity.ok(
-                authService.login(request)
-        );
-    } 
+                authService.login(request));
+    }
 
     @PostMapping("/verify-mfa")
     public ResponseEntity<SignInResponse> verifyMfa(@RequestBody MfaVerifyRequest request) {
 
         return ResponseEntity.ok(
-                authService.verifyMfa(request)
-        );
+                authService.verifyMfa(request));
     }
-    
+
 }

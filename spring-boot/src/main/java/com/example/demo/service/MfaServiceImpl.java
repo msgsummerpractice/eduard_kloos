@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class MfaServiceImpl implements MfaService {
 
@@ -18,8 +17,7 @@ public class MfaServiceImpl implements MfaService {
     public String generateCode(String email) {
 
         String code = String.valueOf(
-                100000 + random.nextInt(900000)
-        );
+                100000 + random.nextInt(900000));
 
         otpStorage.put(email, code);
 

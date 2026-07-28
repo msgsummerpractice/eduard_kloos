@@ -17,7 +17,6 @@ import com.example.demo.security.JwtAuthenticationFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
 
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -38,55 +37,41 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable())
 
-            .sessionManagement(session ->
-                    session.sessionCreationPolicy(
-                            SessionCreationPolicy.STATELESS
-                    )
-            )
+                .sessionManagement(session -> session.sessionCreationPolicy(
+                        SessionCreationPolicy.STATELESS))
 
-            .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(auth -> auth
 
-                    .requestMatchers(
-                            "/api/auth/**"
-                    )
-                    .permitAll()
+                        .requestMatchers(
+                                "/api/auth/**")
+                        .permitAll()
 
-                    .requestMatchers("/api/users/**")
-                    .hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/users/**")
+                        .hasAnyRole("USER", "ADMIN")
 
-                    .anyRequest()
-                    .authenticated()
-            )
+                        .anyRequest()
+                        .authenticated())
 
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            .exceptionHandling(exception -> exception
-                .authenticationEntryPoint(
-                        (request, response, authException) -> 
-                            response.sendError(
-                                    HttpServletResponse.SC_UNAUTHORIZED,
-                                    "Unauthorized"
-                            )
-                )
-            )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(
+                                (request, response, authException) -> response.sendError(
+                                        HttpServletResponse.SC_UNAUTHORIZED,
+                                        "Unauthorized")))
 
-            .addFilterBefore(
-                    jwtAuthenticationFilter,
-                    UsernamePasswordAuthenticationFilter.class
-            );
-
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration
-    ) throws Exception {
+            AuthenticationConfiguration configuration) throws Exception {
 
         return configuration.getAuthenticationManager();
     }

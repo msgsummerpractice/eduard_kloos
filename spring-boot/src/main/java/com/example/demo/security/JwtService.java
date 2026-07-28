@@ -20,8 +20,7 @@ public class JwtService {
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(
-                SECRET.getBytes(StandardCharsets.UTF_8)
-        );
+                SECRET.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(String username) {
