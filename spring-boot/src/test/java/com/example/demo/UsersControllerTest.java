@@ -169,7 +169,8 @@ public class UsersControllerTest {
                 null,
                 "Delete User",
                 "delete@email.com",
-                "password123"
+                "password123",
+                null
         )
     );
 

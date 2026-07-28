@@ -44,10 +44,10 @@ public class UsersServiceTest {
     void shouldReturnUsers() {
 
         List<User> users = List.of(
-                new User(1L, "John Doe1", "john.doe1@email.com", "password123"),
-                new User(2L, "John Doe2", "john.doe2@email.com", "password123"),
-                new User(3L, "John Doe3", "john.doe3@email.com", "password123"),
-                new User(4L, "John Doe4", "john.doe4@email.com", "password123")
+                new User(1L, "John Doe1", "john.doe1@email.com", "password123", null),
+                new User(2L, "John Doe2", "john.doe2@email.com", "password123", null),
+                new User(3L, "John Doe3", "john.doe3@email.com", "password123", null),
+                new User(4L, "John Doe4", "john.doe4@email.com", "password123", null)
         );
 
         Page<User> page = new PageImpl<>(users);
@@ -82,7 +82,7 @@ public class UsersServiceTest {
 
     @Test
     void shouldReturnUserById() {
-        User user = new User(1L, "John Doe", "john.doe@email.com", "password123");
+        User user = new User(1L, "John Doe", "john.doe@email.com", "password123", null);
 
         when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(user));
 
@@ -110,7 +110,7 @@ public class UsersServiceTest {
 
     @Test
     void shouldCreateUser() {
-        User user = new User(null, "John Doe", "john.doe@email.com", "password123");
+        User user = new User(null, "John Doe", "john.doe@email.com", "password123", null);
 
         when(userRepository.save(any(User.class)))
         .thenReturn(
@@ -118,7 +118,8 @@ public class UsersServiceTest {
                 1L,
                 "John Doe",
                 "john.doe@email.com",
-                "password123"
+                "password123",
+                null
             )
         );
 
@@ -139,14 +140,16 @@ public class UsersServiceTest {
                 1L,
                 "John Doe",
                 "john.doe@email.com",
-                "oldpassword"
+                "oldpassword",
+                null
         );
 
         User updateData = new User(
                 null,
                 "Updated John",
                 "updated.email@email.com",
-                "newpassword123"
+                "newpassword123",
+                null
         );
 
 
@@ -226,7 +229,8 @@ public class UsersServiceTest {
                 1L,
                 "John Doe",
                 "john.doe@email.com",
-                "password123"
+                "password123",
+                null
         );
 
         when(userRepository.findByName("John Doe"))
@@ -273,7 +277,8 @@ public class UsersServiceTest {
                 1L,
                 "John Doe",
                 "john.doe@email.com",
-                "password123"
+                "password123",
+                null
         );
 
 
@@ -326,7 +331,8 @@ public class UsersServiceTest {
                 1L,
                 "John Doe",
                 "john@email.com",
-                "password123"
+                "password123",
+                null
         );
 
         when(userRepository.findById(1L))
