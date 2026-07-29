@@ -29,18 +29,42 @@
       <h2 class="text-xl font-semibold mb-2">Dog 1</h2>
 
       <p class="text-gray-600">Playful and affectionate dogs that make excellent family pets.</p>
+
+      <button mat-raised-button color="primary" (click)="getDogImage()">Show me a dog</button>
+
+      @if (dogImage()) {
+        <div class="mt-6">
+          <img [src]="dogImage()" alt="Random dog" class="rounded-lg shadow-lg max-w-md" />
+        </div>
+      }
     </article>
 
     <article class="border rounded-lg p-6 bg-gray-50">
       <h2 class="text-xl font-semibold mb-2">Dog 2</h2>
 
       <p class="text-gray-600">Playful and affectionate dogs that make excellent family pets.</p>
+
+      <button mat-raised-button color="primary" (click)="getDogImage()">Show me a dog</button>
+
+      @if (dogImage()) {
+        <div class="mt-6">
+          <img [src]="dogImage()" alt="Random dog" class="rounded-lg shadow-lg max-w-md" />
+        </div>
+      }
     </article>
 
     <article class="border rounded-lg p-6 bg-gray-50">
       <h2 class="text-xl font-semibold mb-2">Dog 3</h2>
 
       <p class="text-gray-600">Playful and affectionate dogs that make excellent family pets.</p>
+
+      <button mat-raised-button color="primary" (click)="getDogImage()">Show me a dog</button>
+
+      @if (dogImage()) {
+        <div class="mt-6">
+          <img [src]="dogImage()" alt="Random dog" class="rounded-lg shadow-lg max-w-md" />
+        </div>
+      }
     </article>
   </section>
 </main>
