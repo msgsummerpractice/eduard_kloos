@@ -1,0 +1,16 @@
+body {
+    font-family: Roboto, sans-serif;
+    text-align: center;
+    padding: 2rem;
+}
+
+#dog-image {
+    max-width: 100%;
+    height: auto;
+    margin-top: 1rem;
+}
+
+#error-message {
+    color: red;
+    margin-top: 1rem;
+}
