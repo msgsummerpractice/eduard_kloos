@@ -1,4 +1,4 @@
-<mat-toolbar color="primary" class="fixed-top-0 left-0 w-full z50">
+<mat-toolbar color="primary" class="fixed top-0 left-0 w-full z-50">
   <span>Dog gallery</span>
   <nav class="ml-8 flex gap-2">
     <a
@@ -9,17 +9,23 @@
     >
       Home
     </a>
-
-    <a mat-button routerLink="/login" routerLinkActive="active-link"> Login </a>
   </nav>
 
   <span class="flex-1"></span>
 
-  <div *appAuthOnly>
-    <button mat-icon-button aria-label="Login">
-      <mat-icon>person</mat-icon>
-    </button>
-  </div>
+  @if (authService.user(); as user) {
+    <div class="flex items-center gap-3">
+      <span
+        class="flex items-center px-4 py-1 rounded-full bg-white/10 border border-white/30 text-sm font-medium"
+      >
+        {{ user.username | username }}
+      </span>
+
+      <button mat-button class="text-white" (click)="logout()">Logout</button>
+    </div>
+  } @else {
+    <a mat-button routerLink="/login" routerLinkActive="active-link"> Login </a>
+  }
   <button mat-icon-button aria-label="Settings">
     <mat-icon>settings</mat-icon>
   </button>
