@@ -1,17 +1,24 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './login-component/login-component';
 import { NotFoundComponent } from './not-found-component/not-found-component';
+import { HomeComponent } from './home-component/home-component';
 
 export const routes: Routes = [
   {
-    path: '',
-    redirectTo: '',
-    pathMatch: 'full',
+    path: 'home',
+    component: HomeComponent,
   },
+
   {
     path: 'login',
-    component: LoginComponent,
+    loadComponent: () => import('./login-component/login-component').then((m) => m.LoginComponent),
   },
+
+  {
+    path: '',
+    redirectTo: 'home',
+    pathMatch: 'full',
+  },
+
   {
     path: '**',
     component: NotFoundComponent,
