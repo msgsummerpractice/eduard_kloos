@@ -10,13 +10,13 @@ import { UsernamePipe } from './pipes/username-pipe';
 @Component({
   selector: 'app-root',
   imports: [
-    MatButtonModule,
-    MatToolbarModule,
-    MatIconModule,
     AuthOnly,
-    RouterOutlet,
+    MatButtonModule,
+    MatIconModule,
+    MatToolbarModule,
     RouterLink,
     RouterLinkActive,
+    RouterOutlet,
     UsernamePipe,
   ],
   templateUrl: './app.html',
