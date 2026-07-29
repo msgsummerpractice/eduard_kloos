@@ -3,8 +3,8 @@ package com.example.demo.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
-import java.util.Map;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -12,27 +12,25 @@ import org.springframework.stereotype.Service;
 import com.example.demo.repository.UserRepository;
 
 import io.micrometer.common.lang.NonNull;
+import lombok.RequiredArgsConstructor;
 
+import com.example.demo.dto.PatchUserRequest;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.User;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-    
-    private UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
-        logger.info("UserServiceImpl initialized with UserRepository");
-        this.userRepository = userRepository;
-    }
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Page<User> getAllUsers(int page, int size) {
         logger.info("Fetching page {} of users with size {}", page, size);
-        Pageable pageable =
-            PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size);
 
         return userRepository.findAll(pageable);
     }
@@ -41,12 +39,14 @@ public class UserServiceImpl implements UserService {
     public User getUserById(Long id) {
         logger.info("Fetching user with id: {}", id);
         return userRepository.findById(id)
-        .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
     }
 
     @Override
     public User createUser(@NonNull User user) {
         logger.info("Creating new user: {}", user);
+        user.setPassword(
+                passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -67,20 +67,28 @@ public class UserServiceImpl implements UserService {
         User existing = getUserById(id);
         existing.setName(user.getName());
         existing.setEmail(user.getEmail());
-        existing.setPassword(user.getPassword());
+        existing.setPassword(
+                passwordEncoder.encode(user.getPassword()));
         return userRepository.save(existing);
     }
 
-    public User patchUser(Long id, Map<String, Object> updates) {
+    @Override
+    public User patchUser(Long id, PatchUserRequest request) {
         logger.info("Patching user with id: {}", id);
+
         User user = getUserById(id);
 
-        if (updates.containsKey("name")) {
-            user.setName((String) updates.get("name"));
+        if (request.getName() != null) {
+            user.setName(request.getName());
         }
 
-        if (updates.containsKey("email")) {
-            user.setEmail((String) updates.get("email"));
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getPassword() != null) {
+            user.setPassword(
+                    passwordEncoder.encode(request.getPassword()));
         }
 
         return userRepository.save(user);
@@ -92,10 +100,8 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findByName(name)
                 .orElseThrow(() -> new UserNotFoundException(
-                        "User with name " + name + " not found"
-                ));
+                        "User with name " + name + " not found"));
     }
-
 
     @Override
     public User findByEmail(String email) {
@@ -105,7 +111,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
     }
 
-
     @Override
     public List<User> searchByName(String name) {
         logger.info("Searching users containing name: {}", name);
@@ -113,14 +118,13 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByNameContainingIgnoreCase(name);
     }
 
-
     @Override
     public List<User> searchByEmail(String email) {
         logger.info("Searching users containing email: {}", email);
 
         return userRepository.findByEmailContainingIgnoreCase(email);
     }
-    
+
     @Override
     public List<User> searchTop10Users(String name) {
 
@@ -129,7 +133,6 @@ public class UserServiceImpl implements UserService {
         return userRepository
                 .findTop10ByNameContainingIgnoreCaseOrderByNameAsc(name);
     }
-
 
     @Override
     public long countUsers() {

@@ -1,4 +1,5 @@
 package com.example.demo.exception;
+
 import jakarta.validation.ConstraintViolationException;
 
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -27,8 +28,8 @@ public class GlobalExceptionHandler {
     public Map<String, String> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
 
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-            errors.put(error.getField(), error.getDefaultMessage()));
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
         return errors;
     }
@@ -40,8 +41,7 @@ public class GlobalExceptionHandler {
 
         return new ErrorResponse(
                 404,
-                ex.getMessage()
-        );
+                ex.getMessage());
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -51,7 +51,6 @@ public class GlobalExceptionHandler {
 
         return Map.of(
                 "error",
-                ex.getMessage()
-        );
+                ex.getMessage());
     }
 }
