@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { AuthOnly } from './directives/auth-only';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -7,7 +8,7 @@ import { forkJoin } from 'rxjs/internal/observable/forkJoin';
 
 @Component({
   selector: 'app-root',
-  imports: [MatButtonModule, MatToolbarModule, MatIconModule],
+  imports: [MatButtonModule, MatToolbarModule, MatIconModule, AuthOnly],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
