@@ -1,0 +1,19 @@
+<section class="mb-8 text-center">
+  <h1 class="text-4xl font-bold">Random Dog Gallery</h1>
+
+  <p class="text-gray-600">Explore different dog breeds and learn a little more about them.</p>
+  <button mat-raised-button color="primary" class="mt-4" (click)="loadDogs()">Load Dogs</button>
+</section>
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  @for (image of dogImages(); track image) {
+    <article class="border rounded-lg overflow-hidden shadow bg-white">
+      <img [src]="image" alt="Dog image" class="w-full h-64 object-cover" />
+
+      <div class="p-4">
+        <h2 class="text-xl font-semibold mb-2">Random Dog</h2>
+
+        <p class="text-gray-600">A cute dog fetched from Dog API.</p>
+      </div>
+    </article>
+  }
+</section>
