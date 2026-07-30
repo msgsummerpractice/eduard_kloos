@@ -1,19 +1,21 @@
-import { Directive, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Directive, effect, inject, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Auth } from '../services/auth';
 
 @Directive({
   selector: '[appAuthOnly]',
 })
 export class AuthOnly {
-  private isAuthenticated = false;
+  private templateRef = inject(TemplateRef<unknown>);
+  private viewContainer = inject(ViewContainerRef);
+  private authService = inject(Auth);
 
-  constructor(
-    private templateRef: TemplateRef<unknown>,
-    private viewContainer: ViewContainerRef,
-  ) {
-    if (this.isAuthenticated) {
-      this.viewContainer.createEmbeddedView(this.templateRef);
-    } else {
+  constructor() {
+    effect(() => {
       this.viewContainer.clear();
-    }
+
+      if (this.authService.isAuthenticated()) {
+        this.viewContainer.createEmbeddedView(this.templateRef);
+      }
+    });
   }
 }
