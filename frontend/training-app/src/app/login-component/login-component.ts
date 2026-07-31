@@ -13,6 +13,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 
 type LoginForm = FormGroup<{
   email: FormControl<string>;
@@ -25,6 +26,7 @@ type LoginForm = FormGroup<{
   imports: [
     MatCardModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatButtonModule,
     ReactiveFormsModule,
@@ -93,11 +95,6 @@ export class LoginComponent {
     this.authService.verifyMfa(this.emailForMfa, code).subscribe({
       next: (response) => {
         this.authService.saveToken(response.token);
-        this.authService.setUser({
-          username: this.emailForMfa,
-          roles: response.roles,
-        });
-
         this.router.navigate(['/home']);
       },
     });

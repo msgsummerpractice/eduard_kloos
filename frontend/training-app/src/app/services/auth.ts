@@ -3,6 +3,13 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/internal/Observable';
 import { AuthResponse, User } from '../models/auth.model';
+import { jwtDecode } from 'jwt-decode';
+
+interface JwtPayload {
+  sub: string;
+  roles: string[];
+  exp: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class Auth {
@@ -13,11 +20,7 @@ export class Auth {
   private apiUrl = 'http://localhost:8081/api/auth';
 
   constructor() {
-    const storedUser = localStorage.getItem('user');
-
-    if (storedUser) {
-      this.currentUser.set(JSON.parse(storedUser));
-    }
+    this.restoreUser();
   }
 
   login(email: string, password: string): Observable<void> {
@@ -31,8 +34,22 @@ export class Auth {
     });
   }
 
+  restoreUser(): void {
+    const decoded = this.getDecodedToken();
+
+    if (!decoded) {
+      return;
+    }
+
+    this.currentUser.set({
+      username: decoded.sub,
+      roles: decoded.roles,
+    });
+  }
+
   saveToken(token: string): void {
     localStorage.setItem('token', token);
+    this.restoreUser();
   }
 
   logout(): void {
@@ -43,11 +60,31 @@ export class Auth {
   }
 
   isAuthenticated(): boolean {
-    return localStorage.getItem('token') !== null;
+    const decoded = this.getDecodedToken();
+
+    if (!decoded) {
+      return false;
+    }
+
+    return decoded.exp * 1000 > Date.now();
   }
 
   setUser(user: User): void {
     this.currentUser.set(user);
     localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  private getDecodedToken(): JwtPayload | null {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      return null;
+    }
+
+    try {
+      return jwtDecode<JwtPayload>(token);
+    } catch {
+      return null;
+    }
   }
 }
