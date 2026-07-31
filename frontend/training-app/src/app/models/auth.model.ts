@@ -18,3 +18,9 @@ export interface AuthResponse {
   roles: string[];
   mfaRequired: boolean;
 }
+
+export interface JwtPayload {
+  sub: string;
+  roles: string[];
+  exp: number;
+}

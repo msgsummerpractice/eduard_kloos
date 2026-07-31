@@ -1,15 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs/internal/Observable';
-import { AuthResponse, User } from '../models/auth.model';
+import { Observable } from 'rxjs';
+import { AuthResponse, JwtPayload, User } from '../models/auth.model';
 import { jwtDecode } from 'jwt-decode';
-
-interface JwtPayload {
-  sub: string;
-  roles: string[];
-  exp: number;
-}
 
 @Injectable({ providedIn: 'root' })
 export class Auth {
@@ -23,15 +17,12 @@ export class Auth {
     this.restoreUser();
   }
 
-  login(email: string, password: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/login`, { email, password });
+  login(email: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { email, password });
   }
 
   verifyMfa(email: string, code: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/verify-mfa`, {
-      email,
-      code,
-    });
+    return this.http.post<AuthResponse>(`${this.apiUrl}/verify-mfa`, { email, code });
   }
 
   restoreUser(): void {
@@ -54,7 +45,6 @@ export class Auth {
 
   logout(): void {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
     this.currentUser.set(null);
     this.router.navigate(['/login']);
   }
@@ -62,15 +52,10 @@ export class Auth {
   isAuthenticated(): boolean {
     const decoded = this.getDecodedToken();
 
-    if (!decoded) {
-      return false;
-    }
-
-    return decoded.exp * 1000 > Date.now();
+    return !!decoded?.exp && decoded.exp * 1000 > Date.now();
   }
 
   setUser(user: User): void {
-    this.currentUser.set(user);
     localStorage.setItem('user', JSON.stringify(user));
   }
 
