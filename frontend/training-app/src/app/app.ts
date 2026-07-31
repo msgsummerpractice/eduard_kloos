@@ -1,19 +1,19 @@
 import { Component, inject } from '@angular/core';
-import { AuthOnly } from './directives/auth-only';
 import { Auth } from './services/auth';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { UsernamePipe } from './pipes/username-pipe';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   imports: [
-    AuthOnly,
     MatButtonModule,
     MatIconModule,
     MatToolbarModule,
+    ReactiveFormsModule,
     RouterLink,
     RouterLinkActive,
     RouterOutlet,
