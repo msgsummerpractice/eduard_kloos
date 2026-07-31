@@ -31,28 +31,24 @@ type LoginForm = FormGroup<{
   styleUrl: './login-component.css',
 })
 export class LoginComponent {
-  loginForm: LoginForm;
   private authService = inject(Auth);
-
-  constructor(private fb: NonNullableFormBuilder) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-    });
-  }
+  private readonly formBuilder = inject(NonNullableFormBuilder);
+  protected readonly loginFormGroup: LoginForm = this.formBuilder.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+  });
 
   onSubmit(): void {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
+    if (this.loginFormGroup.invalid) {
+      this.loginFormGroup.markAllAsTouched();
       return;
     }
 
-    const { email, password } = this.loginForm.getRawValue();
-    this.authService.login(email, password);
+    this.login();
   }
 
   login(): void {
-    const { email, password } = this.loginForm.getRawValue();
+    const { email, password } = this.loginFormGroup.getRawValue();
     this.authService.login(email, password);
   }
 
@@ -62,5 +58,13 @@ export class LoginComponent {
 
   isAuthenticated(): boolean {
     return this.authService.isAuthenticated();
+  }
+
+  get email() {
+    return this.loginFormGroup.get('email');
+  }
+
+  get password() {
+    return this.loginFormGroup.get('password');
   }
 }
