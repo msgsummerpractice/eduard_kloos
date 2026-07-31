@@ -2,6 +2,7 @@ package com.example.demo.security;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 import javax.crypto.SecretKey;
 
@@ -23,13 +24,14 @@ public class JwtService {
                 SECRET.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, List<String> roles) {
 
         Date now = new Date();
         Date expiration = new Date(now.getTime() + EXPIRATION);
 
         return Jwts.builder()
                 .subject(username)
+                .claim("roles", roles)
                 .issuedAt(now)
                 .expiration(expiration)
                 .signWith(getSigningKey())
