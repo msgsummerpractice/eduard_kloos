@@ -1,42 +1,53 @@
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-
-export interface User {
-  username: string;
-  password: string;
-  role: string;
-}
+import { Observable } from 'rxjs/internal/Observable';
+import { AuthResponse, User } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class Auth {
-  private currentUser = signal<User | null>(null);
+  private http = inject(HttpClient);
   private router = inject(Router);
-
+  private currentUser = signal<User | null>(null);
   user = this.currentUser.asReadonly();
+  private apiUrl = 'http://localhost:8081/api/auth';
 
-  login(email: string, password: string): void {
-    console.log('Logging in with:', email, password);
+  constructor() {
+    const storedUser = localStorage.getItem('user');
 
-    const mockUser: User = {
-      username: email,
-      password: password,
-      role: 'admin',
-    };
+    if (storedUser) {
+      this.currentUser.set(JSON.parse(storedUser));
+    }
+  }
 
-    this.currentUser.set(mockUser);
-    this.router.navigate(['/home']);
+  login(email: string, password: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/login`, { email, password });
+  }
+
+  verifyMfa(email: string, code: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/verify-mfa`, {
+      email,
+      code,
+    });
+  }
+
+  saveToken(token: string): void {
+    localStorage.setItem('token', token);
   }
 
   logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     this.currentUser.set(null);
     this.router.navigate(['/login']);
   }
 
   isAuthenticated(): boolean {
-    return this.currentUser() !== null;
+    return localStorage.getItem('token') !== null;
   }
 
-  getToken(): string | null {
-    return 'mock-jwt-token';
+  setUser(user: User): void {
+    this.currentUser.set(user);
+    localStorage.setItem('user', JSON.stringify(user));
   }
 }

@@ -32,15 +32,39 @@
           }
         </mat-form-field>
 
+        @if (loginError) {
+          <div class="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {{ loginError }}
+          </div>
+        }
+
         <button
           mat-raised-button
           color="primary"
           type="submit"
-          [disabled]="loginFormGroup.invalid"
+          [disabled]="loginFormGroup.invalid || isLoading()"
           class="h-12 rounded-lg"
         >
-          Login
+          @if (isLoading()) {
+            <mat-spinner diameter="20"> </mat-spinner>
+          } @else {
+            Login
+          }
         </button>
+
+        @if (showMfa) {
+          <div class="mt-6">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label> MFA Code </mat-label>
+
+              <input matInput #code maxlength="6" />
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" (click)="verifyMfa(code.value)">
+              Verify
+            </button>
+          </div>
+        }
       </form>
     </mat-card-content>
   </mat-card>

@@ -13,7 +13,6 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class HomeComponent {
   private dogService = inject(DogService);
-
   dogImages = signal<string[]>([]);
 
   loadDogs(): void {

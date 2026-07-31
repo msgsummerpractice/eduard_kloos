@@ -31,15 +31,11 @@ public class AuthServiceImpl implements AuthService {
 
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
-
         mfaService.generateCode(user.getEmail());
-
         return new SignInResponse(null, user.getRoles().stream().map(role -> role.getName()).toList(), true);
-
     }
 
     @Override
@@ -48,18 +44,13 @@ public class AuthServiceImpl implements AuthService {
         boolean valid = mfaService.verifyCode(
                 request.getEmail(),
                 request.getCode());
-
         if (!valid) {
             throw new RuntimeException("Invalid MFA code");
         }
-
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(
                         () -> new UserNotFoundException("User not found"));
-
-        var token = jwtService.generateToken(
-                user.getEmail());
-
+        var token = jwtService.generateToken(user.getEmail());
         return new SignInResponse(
                 token,
                 user.getRoles()
@@ -68,5 +59,4 @@ public class AuthServiceImpl implements AuthService {
                         .toList(),
                 false);
     }
-
 }
