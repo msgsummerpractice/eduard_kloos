@@ -12,7 +12,7 @@ export class Auth {
   private currentUser = signal<User | null>(null);
   user = this.currentUser.asReadonly();
   private apiUrl =
-    'https://backend.yellowground-4213ad35.germanynorth.azurecontainerapps.io:8081/api/auth';
+    'https://backend.yellowground-4213ad35.germanynorth.azurecontainerapps.io/api/auth';
 
   constructor() {
     this.restoreUser();
