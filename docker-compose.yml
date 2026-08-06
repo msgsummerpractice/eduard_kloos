@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  postgres:
+    build: ./postgres
+    container_name: postgres
+
+    environment:
+      POSTGRES_DB: spring_data_jpa
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./spring-boot
+    container_name: backend
+
+    ports:
+      - "8081:8081"
+
+    depends_on:
+      - postgres
+
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/spring_data_jpa
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      PORT: 8081

@@ -11,7 +11,8 @@ export class Auth {
   private router = inject(Router);
   private currentUser = signal<User | null>(null);
   user = this.currentUser.asReadonly();
-  private apiUrl = 'http://localhost:8081/api/auth';
+  private apiUrl =
+    'https://backend.internal.yellowground-4213ad35.germanynorth.azurecontainerapps.io:8081/api/auth';
 
   constructor() {
     this.restoreUser();

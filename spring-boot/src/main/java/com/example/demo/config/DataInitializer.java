@@ -16,48 +16,49 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class DataInitializer {
 
-    @Bean
-    CommandLineRunner init(UserRepository userRepository, RoleRepository roleRepository,
-            PasswordEncoder passwordEncoder) {
+        // @Bean
+        // CommandLineRunner init(UserRepository userRepository, RoleRepository
+        // roleRepository,
+        // PasswordEncoder passwordEncoder) {
 
-        return args -> {
+        // return args -> {
 
-            Role userRole = new Role();
-            userRole.setName("USER");
+        // Role userRole = new Role();
+        // userRole.setName("USER");
 
-            roleRepository.save(userRole);
+        // roleRepository.save(userRole);
 
-            Role adminRole = new Role();
-            adminRole.setName("ADMIN");
+        // Role adminRole = new Role();
+        // adminRole.setName("ADMIN");
 
-            roleRepository.save(adminRole);
+        // roleRepository.save(adminRole);
 
-            User john = new User();
+        // User john = new User();
 
-            john.setName("John");
-            john.setEmail("john@test.com");
-            john.setPassword(
-                    passwordEncoder.encode("password123"));
+        // john.setName("John");
+        // john.setEmail("john@test.com");
+        // john.setPassword(
+        // passwordEncoder.encode("password123"));
 
-            john.setRoles(
-                    Set.of(userRole));
+        // john.setRoles(
+        // Set.of(userRole));
 
-            userRepository.save(john);
+        // userRepository.save(john);
 
-            User sam = new User();
+        // User sam = new User();
 
-            sam.setName("Sam");
-            sam.setEmail("sam@test.com");
-            sam.setPassword(
-                    passwordEncoder.encode("password123"));
+        // sam.setName("Sam");
+        // sam.setEmail("sam@test.com");
+        // sam.setPassword(
+        // passwordEncoder.encode("password123"));
 
-            sam.setRoles(
-                    Set.of(adminRole));
+        // sam.setRoles(
+        // Set.of(adminRole));
 
-            userRepository.save(sam);
+        // userRepository.save(sam);
 
-        };
+        // };
 
-    }
+        // }
 
 }
