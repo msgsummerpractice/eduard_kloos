@@ -7,8 +7,6 @@ services:
 
     environment:
       POSTGRES_DB: spring_data_jpa
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
 
     ports:
       - "5432:5432"
@@ -25,6 +23,4 @@ services:
 
     environment:
       DB_URL: jdbc:postgresql://postgres:5432/spring_data_jpa
-      DB_USER: postgres
-      DB_PASSWORD: postgres
       PORT: 8081
